@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
   ros::init(argc, argv, "omni_haptic_node");
   ros::NodeHandle n;
-  ros::Rate r(10);
+  ros::Rate r(100);
   tf::TransformListener listener;
   tf::StampedTransform transform_base_stylus;
   geometry_msgs::Transform t;

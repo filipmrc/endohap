@@ -19,14 +19,14 @@ public:
 
 	}
 
-	void setForces()
+	void setForces(double x, double y, double z)
 	{
 	  phantom_omni::OmniFeedback feedback;
 	  geometry_msgs::Vector3 frc, pos;
 
-	  frc.x = 0; pos.x = 0;
-	  frc.y = 0; pos.y = 0;
-	  frc.z = 0; pos.z = 0;
+	  frc.x = x*20; pos.x = 0;
+	  frc.y = -y*10; pos.y = 0.1;
+	  frc.z = -z*20; pos.z = 0;
 
 	  feedback.force = frc;
 	  feedback.position = pos;
@@ -39,6 +39,7 @@ int main(int argc, char** argv) {
 
   ros::init(argc, argv, "omni_haptic_node");
   ros::NodeHandle n;
+  ros::Rate r(10);
   tf::TransformListener listener;
   tf::StampedTransform transform_base_stylus;
   geometry_msgs::Transform t;
@@ -46,10 +47,8 @@ int main(int argc, char** argv) {
   Endohap hap(n);
 
   while(ros::ok()){
-      hap.setForces();
-
       try{
-        listener.lookupTransform("/lower_arm", "/stylus",
+        listener.lookupTransform("/base", "/tip",
                                  ros::Time(0), transform_base_stylus);
       }
       catch (tf::TransformException &ex){
@@ -59,6 +58,10 @@ int main(int argc, char** argv) {
 
       tf::transformTFToMsg(transform_base_stylus,t);
       ROS_INFO_STREAM(t);
+
+      hap.setForces(t.translation.x,t.translation.z,t.translation.z);
+
+      r.sleep();
   }
 
 }

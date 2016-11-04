@@ -15,6 +15,10 @@ public:
 	{
 	  force_pub = n.advertise<phantom_omni::OmniFeedback>("omni1_force_feedback",1);
 	  joint_sub = n.subscribe("/joint_states", 1 , &Endohap::endowristCallback, this);
+
+	  endo_pos.resize(4);
+	  endo_acc.resize(4);
+	  endo_vel.resize(4);
 	};
 
 	// Get current endowrist joint states and calculate feedback
@@ -52,10 +56,18 @@ public:
 	        ROS_ERROR("%s",ex.what());
 	        ros::Duration(1.0).sleep();
 	      }
+
+	      // Physical motor angles Endowrist used in the dynamic model
+	      endo_pos[0] = (-11/8)*endo_state.position[3],
+	      endo_pos[1] = (-13/14)*endo_state.position[4],
+	      endo_pos[2] = endo_state.position[2] - (9/14)*endo_state.position[4],
+	      endo_pos[3] =  endo_pos[2];
 	}
 
 private:
 	  tf::StampedTransform transform_base_stylus;
+	  sensor_msgs::JointState endo_state;
+	  std::vector<double> endo_pos, endo_vel, endo_acc;
 
 };
 int main(int argc, char** argv) {

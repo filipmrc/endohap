@@ -1,22 +1,25 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Vector3.h>
 #include <phantom_omni/OmniFeedback.h>
+#include <sensor_msgs/JointState.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 
 class Endohap {
 public:
 	ros::Publisher force_pub;
-	//ros::Subscriber joint_sub;
+	ros::Subscriber joint_sub;
 
 	Endohap(ros::NodeHandle n)
 	{
 	  force_pub = n.advertise<phantom_omni::OmniFeedback>("omni1_force_feedback",1);
+	  joint_sub = n.subscribe("/joint_states", 1 , &Endohap::endowristCallback, this);
 	};
 
-	void endowristCallback()
+	void endowristCallback(sensor_msgs::JointState state)
 	{
-
+	  ROS_INFO_STREAM("ayy");
+	  this->setForces(1,1,1);
 	}
 
 	void setForces(double x, double y, double z)
@@ -57,10 +60,10 @@ int main(int argc, char** argv) {
       }
 
       tf::transformTFToMsg(transform_base_stylus,t);
-      ROS_INFO_STREAM(t);
+      //ROS_INFO_STREAM(t);
 
-      hap.setForces(t.translation.x,t.translation.z,t.translation.z);
-
+      //hap.setForces(t.translation.x,t.translation.z,t.translation.z);
+      ros::spinOnce();
       r.sleep();
   }
 

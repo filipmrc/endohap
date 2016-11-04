@@ -9,6 +9,7 @@ class Endohap {
 public:
 	ros::Publisher force_pub;
 	ros::Subscriber joint_sub;
+	tf::TransformListener listener;
 
 	Endohap(ros::NodeHandle n)
 	{
@@ -16,13 +17,15 @@ public:
 	  joint_sub = n.subscribe("/joint_states", 1 , &Endohap::endowristCallback, this);
 	};
 
+	// Get current endowrist joint states and calculate feedback
 	void endowristCallback(sensor_msgs::JointState state)
 	{
-	  ROS_INFO_STREAM("ayy");
-	  this->setForces(1,1,1);
+	  updateStates();
+	  this->setFeedback(1,1,1);
 	}
 
-	void setForces(double x, double y, double z)
+	// Set feedback for the phantom omni and send to phantom_omni package
+	void setFeedback(double x, double y, double z)
 	{
 	  phantom_omni::OmniFeedback feedback;
 	  geometry_msgs::Vector3 frc, pos;
@@ -37,32 +40,33 @@ public:
 	  force_pub.publish(feedback);
 	}
 
+	// Update states for both the endowrist and phantom omni
+	void updateStates()
+	{
+	      // Check tf stream for current phantom omni eef position
+	      try{
+	        listener.lookupTransform("/base", "/tip",
+	                                 ros::Time(0), transform_base_stylus);
+	      }
+	      catch (tf::TransformException &ex){
+	        ROS_ERROR("%s",ex.what());
+	        ros::Duration(1.0).sleep();
+	      }
+	}
+
+private:
+	  tf::StampedTransform transform_base_stylus;
+
 };
 int main(int argc, char** argv) {
 
   ros::init(argc, argv, "omni_haptic_node");
   ros::NodeHandle n;
-  ros::Rate r(101);
-  tf::TransformListener listener;
-  tf::StampedTransform transform_base_stylus;
-  geometry_msgs::Transform t;
+  ros::Rate r(100);
 
   Endohap hap(n);
 
   while(ros::ok()){
-      try{
-        listener.lookupTransform("/base", "/tip",
-                                 ros::Time(0), transform_base_stylus);
-      }
-      catch (tf::TransformException &ex){
-        ROS_ERROR("%s",ex.what());
-        ros::Duration(1.0).sleep();
-      }
-
-      tf::transformTFToMsg(transform_base_stylus,t);
-      //ROS_INFO_STREAM(t);
-
-      //hap.setForces(t.translation.x,t.translation.z,t.translation.z);
       ros::spinOnce();
       r.sleep();
   }

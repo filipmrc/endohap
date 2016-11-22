@@ -85,7 +85,7 @@ public:
 		pos.x = 0;
 		frc.y = -y * 10;
 		pos.y = 0.1;
-		frc.z = -z * 20;
+		frc.z = -z * endo_force;
 		pos.z = 0;
 
 		feedback.force = frc;

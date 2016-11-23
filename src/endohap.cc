@@ -5,43 +5,92 @@
 #include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 
-class Endohap
+class Endowrist
+{
+public:
+	double force;
+
+	Endowrist(ros::NodeHandle n)
+	{
+		joint_sub = n.subscribe("/joint_states", 1, &Endowrist::callback,
+				this);
+
+		pos.resize(4);
+		eff.resize(4);
+		vel.resize(4);
+		force = 0;
+	}
+	void callback(sensor_msgs::JointState st)
+	{
+		state = st;
+
+		updateStates();
+
+		forceEstimation();
+	}
+
+	void updateStates()
+	{
+		// Physical motor angles Endowrist used in the dynamic model
+		pos[0] = (-11 / 8) * state.position[3],
+		pos[1] = (-13/14) * state.position[4],
+        pos[2] = state.position[2] - (9 / 14) * state.position[4],
+		pos[3] = pos[2];
+
+		eff[0] = state.effort[0],
+		eff[1] = state.effort[1],
+		eff[2] = state.effort[2],
+		eff[3] = state.effort[3];
+	}
+
+	// Estimate forces on Endowrist gripper
+	void forceEstimation()
+	{
+		double m = 0.0028, b = -0.8259;
+		force = m*eff[0] + b;
+	}
+
+private:
+	sensor_msgs::JointState state;
+	std::vector<double> pos, vel, eff;
+	ros::Subscriber joint_sub;
+};
+
+
+class PhantomOmni
 {
 public:
 	ros::Publisher force_pub;
-	ros::Subscriber joint_sub;
 	tf::TransformListener listener;
 
-	Endohap(ros::NodeHandle n)
+	PhantomOmni(ros::NodeHandle n)
 	{
 		force_pub = n.advertise<phantom_omni::OmniFeedback>(
 				"omni1_force_feedback", 1);
-		joint_sub = n.subscribe("/joint_states", 1, &Endohap::endowristCallback,
-				this);
-
-		endo_pos.resize(4);
-		endo_eff.resize(4);
-		endo_vel.resize(4);
-		endo_force = 0;
 	}
-	;
 
-	// Get current endowrist and phantom omni joint states and calculate feedback
-	void endowristCallback(sensor_msgs::JointState state)
+	// Set feedback for the phantom omni and send to phantom_omni package
+	void setFeedback(double force)
 	{
-		endo_state = state;
+		updateStates();
 
-		updateOmniStates();
+		phantom_omni::OmniFeedback feedback;
+		geometry_msgs::Vector3 frc, pos;
 
-		updateEndoStates();
+		frc.x = 0, pos.x = 0;
+		frc.y = 0, pos.y = 0;
+		frc.z = force, pos.z = 0;
 
-		endowristForceEstimation();
+		feedback.force = frc;
+		feedback.position = pos;
 
-		setFeedback();
+		force_pub.publish(feedback);
 	}
+
+private:
 
 	// Update states for both the endowrist and phantom omni
-	void updateOmniStates()
+	void updateStates()
 	{
 		// Check tf stream for current phantom omni eef position
 		try
@@ -55,51 +104,7 @@ public:
 		}
 	}
 
-	void updateEndoStates()
-	{
-		// Physical motor angles Endowrist used in the dynamic model
-		endo_pos[0] = (-11 / 8) * endo_state.position[3],
-		endo_pos[1] = (-13/14) * endo_state.position[4],
-        endo_pos[2] = endo_state.position[2] - (9 / 14) * endo_state.position[4],
-		endo_pos[3] = endo_pos[2];
-
-		endo_eff[0] = endo_state.effort[0],
-		endo_eff[1] = endo_state.effort[1],
-		endo_eff[2] = endo_state.effort[2],
-		endo_eff[3] = endo_state.effort[3];
-	}
-
-	// Estimate forces on Endowrist gripper
-	void endowristForceEstimation()
-	{
-		double m = 0.0028, b = -0.8259;
-		endo_force = m*endo_eff[0] + b;
-	}
-
-	// Set feedback for the phantom omni and send to phantom_omni package
-	void setFeedback()
-	{
-		phantom_omni::OmniFeedback feedback;
-		geometry_msgs::Vector3 frc, pos;
-
-		frc.x = 0;
-		pos.x = 0;
-		frc.y = 0;
-		pos.y = 0;
-		frc.z =  endo_force;
-		pos.z = 0;
-
-		feedback.force = frc;
-		feedback.position = pos;
-
-		force_pub.publish(feedback);
-	}
-
-private:
 	tf::StampedTransform transform_base_stylus;
-	sensor_msgs::JointState endo_state;
-	std::vector<double> endo_pos, endo_vel, endo_eff;
-	double endo_force;
 
 };
 
@@ -110,10 +115,12 @@ int main(int argc, char** argv)
 	ros::NodeHandle n;
 	ros::Rate r(100);
 
-	Endohap hap(n);
+	PhantomOmni omni(n);
+	Endowrist endowrist(n);
 
 	while (ros::ok())
 	{
+		omni.setFeedback(endowrist.force);
 		ros::spinOnce();
 		r.sleep();
 	}

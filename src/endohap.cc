@@ -22,6 +22,7 @@ public:
 		endo_pos.resize(4);
 		endo_eff.resize(4);
 		endo_vel.resize(4);
+		endo_force = 0;
 	}
 	;
 
@@ -36,7 +37,7 @@ public:
 
 		endowristForceEstimation();
 
-		setFeedback(1, 1, 1);
+		setFeedback();
 	}
 
 	// Update states for both the endowrist and phantom omni
@@ -76,16 +77,16 @@ public:
 	}
 
 	// Set feedback for the phantom omni and send to phantom_omni package
-	void setFeedback(double x, double y, double z)
+	void setFeedback()
 	{
 		phantom_omni::OmniFeedback feedback;
 		geometry_msgs::Vector3 frc, pos;
 
-		frc.x = x * 20;
+		frc.x = 0;
 		pos.x = 0;
-		frc.y = -y * 10;
-		pos.y = 0.1;
-		frc.z = -z * endo_force;
+		frc.y = 0;
+		pos.y = 0;
+		frc.z =  endo_force;
 		pos.z = 0;
 
 		feedback.force = frc;

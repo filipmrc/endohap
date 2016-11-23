@@ -5,7 +5,6 @@ PhantomOmni::PhantomOmni(ros::NodeHandle n)
 			1);
 }
 
-// Set feedback for the phantom omni and send to phantom_omni package
 void PhantomOmni::setFeedback(double force)
 {
 	updateStates();
@@ -23,7 +22,6 @@ void PhantomOmni::setFeedback(double force)
 	force_pub.publish(feedback);
 }
 
-// Update states for both the endowrist and phantom omni
 void PhantomOmni::updateStates()
 {
 	// Check tf stream for current phantom omni eef position

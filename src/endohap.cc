@@ -12,10 +12,17 @@ int main(int argc, char** argv)
 	PhantomOmni omni(n);
 	Endowrist endowrist(n);
 
+	std::vector<double> pos;
+
+	for(int i= 0;i<5;i++)
+		pos.push_back(1);
+
+
 	while (ros::ok())
 	{
 		omni.setFeedback(endowrist.force);
-		endowrist.setJoints(); // does nothing atm
+		pos[0] = omni.transform_base_stylus.getOrigin().x();
+		endowrist.setJoints(pos); // does nothing atm
 		ros::spinOnce();
 		r.sleep();
 	}

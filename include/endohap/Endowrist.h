@@ -1,7 +1,9 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Vector3.h>
+#include <control_msgs/FollowJointTrajectoryAction.h>
 #include <phantom_omni/OmniFeedback.h>
 #include <sensor_msgs/JointState.h>
+#include <actionlib/client/simple_action_client.h>
 
 class Endowrist
 {
@@ -20,10 +22,11 @@ public:
 	void forceEstimation();
 
 	//TODO Set joint states
-	void setJoints();
+	void setJoints(std::vector<double> cmd);
 
 private:
 	ros::Publisher joint_pub;
+	actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> acTraj;
 
 	sensor_msgs::JointState state;
 	std::vector<double> pos, vel, eff;

@@ -1,11 +1,9 @@
 #include <endohap/Endowrist.h>
 
-Endowrist::Endowrist(ros::NodeHandle n)
+Endowrist::Endowrist(ros::NodeHandle n) :
+		acTraj("davinci/p4_hand_controller/follow_joint_trajectory", true)
 {
 	joint_sub = n.subscribe("/joint_states", 1, &Endowrist::callback, this);
-
-	joint_pub = n.advertise<trajectory_msgs::JointTrajectory>(
-			"p4_hand_controller/follow_joint_trajectory/command", 1);
 
 	pos.resize(4);
 	eff.resize(4);
@@ -40,9 +38,20 @@ void Endowrist::forceEstimation()
 	force = m * eff[0] + b;
 }
 
-void Endowrist::setJoints()
+void Endowrist::setJoints(std::vector<double> cmd)
 {
+	cmd.resize(5);
+
 	//TODO set this shit up
-	trajectory_msgs::JointTrajectory command;
+	control_msgs::FollowJointTrajectoryGoal goal;
+
+	char* args[5] = {"p4_hand_roll", "p4_hand_pitch", "p4_instrument_slide",  "p4_instrument_roll", "p4_instrument_pitch"};
+
+	for (int i = 0; i < 5; i++)
+		goal.trajectory.joint_names.push_back(args[i]);
+
+	goal.trajectory.points[0].positions = cmd;
+
+	acTraj.sendGoal(goal);
 }
 

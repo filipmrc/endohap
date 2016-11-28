@@ -10,6 +10,7 @@ class PhantomOmni
 public:
 	ros::Publisher force_pub;
 	tf::TransformListener listener;
+	tf::StampedTransform transform_base_stylus;
 
 	PhantomOmni(ros::NodeHandle n);
 
@@ -20,7 +21,4 @@ private:
 
 	// Update states for both the endowrist and phantom omni
 	void updateStates();
-
-	tf::StampedTransform transform_base_stylus;
-
 };

@@ -13,6 +13,7 @@ int main(int argc, char** argv)
 	Endowrist endowrist(n);
 
 	std::vector<double> pos;
+	pos.resize(5);
 
 	for(int i= 0;i<5;i++)
 		pos.push_back(1);

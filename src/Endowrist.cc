@@ -42,15 +42,22 @@ void Endowrist::setJoints(std::vector<double> cmd)
 {
 	cmd.resize(5);
 
-	//TODO set this shit up
 	control_msgs::FollowJointTrajectoryGoal goal;
+	goal.trajectory.points.resize(1);
+	goal.trajectory.points[0].positions.resize(5);
 
-	char* args[5] = {"p4_hand_roll", "p4_hand_pitch", "p4_instrument_slide",  "p4_instrument_roll", "p4_instrument_pitch"};
+
+
+	char* args[5] =
+	{ "p4_hand_roll", "p4_hand_pitch", "p4_instrument_slide",
+			"p4_instrument_roll", "p4_instrument_pitch" };
+
 
 	for (int i = 0; i < 5; i++)
+	{
 		goal.trajectory.joint_names.push_back(args[i]);
-
-	goal.trajectory.points[0].positions = cmd;
+		goal.trajectory.points[0].positions[i] = cmd[i];
+	}
 
 	acTraj.sendGoal(goal);
 }

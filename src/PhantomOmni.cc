@@ -19,9 +19,9 @@ void PhantomOmni::setFeedback(double force)
 	phantom_omni::OmniFeedback feedback;
 	geometry_msgs::Vector3 frc, pos;
 
-	frc.x = 0, pos.x = 0;
+	frc.x = force, pos.x = 0;
 	frc.y = 0, pos.y = 0;
-	frc.z = force, pos.z = 0;
+	frc.z = 0, pos.z = 0;
 
 	feedback.force = frc;
 	feedback.position = pos;

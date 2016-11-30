@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 	while (ros::ok())
 	{
 		omni.setFeedback(endowrist.force);
-		pos[2] = omni.transform_base_stylus.getOrigin().x();
+		pos[2] = omni.state.position[0];
 		pos[0] = -omni.transform_base_stylus.getOrigin().z();
 		pos[3] = omni.transform_base_stylus.getOrigin().z();
 		pos[1] = omni.transform_base_stylus.getOrigin().y();

@@ -9,16 +9,21 @@ class PhantomOmni
 {
 public:
 	ros::Publisher force_pub;
+	ros::Subscriber joint_sub;
 	tf::TransformListener listener;
 	tf::StampedTransform transform_base_stylus;
+	sensor_msgs::JointState state;
 
 	PhantomOmni(ros::NodeHandle n);
 
 	// Set feedback for the phantom omni and send to phantom_omni package
 	void setFeedback(double force);
 
+	void callback(sensor_msgs::JointState st);
+
 private:
 
 	// Update states for both the endowrist and phantom omni
 	void updateStates();
+
 };

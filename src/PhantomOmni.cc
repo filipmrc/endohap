@@ -3,12 +3,18 @@ PhantomOmni::PhantomOmni(ros::NodeHandle n)
 {
 	force_pub = n.advertise<phantom_omni::OmniFeedback>("omni1_force_feedback",
 			1);
+	joint_sub = n.subscribe("/omni1_joint_states", 1, &PhantomOmni::callback, this)
+}
+
+void Endowrist::callback(sensor_msgs::JointState st)
+{
+	state = st;
+
+	updateStates();
 }
 
 void PhantomOmni::setFeedback(double force)
 {
-	updateStates();
-
 	phantom_omni::OmniFeedback feedback;
 	geometry_msgs::Vector3 frc, pos;
 

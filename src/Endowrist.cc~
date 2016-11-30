@@ -62,7 +62,7 @@ void Endowrist::setJoints(std::vector<double> cmd)
 	for (int i = 0; i < 5; i++)
 	{
 		goal.trajectory.joint_names.push_back(args[i]);
-		goal.trajectory.points[0].time_from_start = ros::Duration(0.01);
+		goal.trajectory.points[0].time_from_start = ros::Duration(0.1);
 		goal.trajectory.points[0].positions[i] = cmd[i];
 	}
 

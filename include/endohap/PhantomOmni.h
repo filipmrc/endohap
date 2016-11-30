@@ -12,7 +12,7 @@ public:
 	ros::Subscriber joint_sub;
 	tf::TransformListener listener;
 	tf::StampedTransform transform_base_stylus;
-	sensor_msgs::JointState states;
+	sensor_msgs::JointState state;
 
 	PhantomOmni(ros::NodeHandle n);
 

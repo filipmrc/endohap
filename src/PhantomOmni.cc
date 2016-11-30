@@ -9,7 +9,7 @@ PhantomOmni::PhantomOmni(ros::NodeHandle n)
 
 void PhantomOmni::callback(sensor_msgs::JointState st)
 {
-	states = st;
+	state = st;
 
 	updateStates();
 }

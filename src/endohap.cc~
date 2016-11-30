@@ -16,13 +16,13 @@ int main(int argc, char** argv)
 
 	for(int i= 0;i<5;i++)
 		pos.push_back(1);
-
+	omni.state.position.resize(6);
 
 	while (ros::ok())
 	{
 		omni.setFeedback(endowrist.force);
+		printf("%f\n",endowrist.force);
 		pos[2] = omni.state.position[0];
-		//ROS_INFO_STREAM(omni.state);
 		pos[0] = -omni.transform_base_stylus.getOrigin().z();
 		pos[3] = omni.transform_base_stylus.getOrigin().z();
 		pos[1] = omni.transform_base_stylus.getOrigin().y();

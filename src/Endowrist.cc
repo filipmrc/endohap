@@ -30,9 +30,9 @@ void Endowrist::updateStates()
 			- (9 / 14) * state.position[4], pos[3] = pos[2];
 
 	// Endowrist motor angular velocities
-	for(int i = 0;i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
-		vel[i] = (pos[i]- last_pos[i])/T;
+		vel[i] = (pos[i] - last_pos[i]) / T;
 		last_pos[i] = pos[i];
 	}
 
@@ -55,29 +55,27 @@ void Endowrist::setJoints(std::vector<double> cmd)
 	goal.trajectory.points.resize(1);
 	goal.trajectory.points[0].positions.resize(5);
 
-
-
 	char* args[5] =
 	{ "p4_hand_roll", "p4_hand_pitch", "p4_instrument_slide",
 			"p4_instrument_roll", "p4_instrument_pitch" };
 
-
 	for (int i = 0; i < 5; i++)
 	{
 		goal.trajectory.joint_names.push_back(args[i]);
+		goal.trajectory.points[0].time_from_start = ros::Duration(1.0);
 		goal.trajectory.points[0].positions[i] = cmd[i];
 	}
 
 	acTraj.sendGoal(goal);
 
-	  bool finished_before_timeout = acTraj.waitForResult(ros::Duration(1.0));
+	bool finished_before_timeout = acTraj.waitForResult(ros::Duration(10.0));
 
-	  if (finished_before_timeout)
-	  {
-	    actionlib::SimpleClientGoalState state = acTraj.getState();
-	    ROS_INFO("Action finished: %s",state.toString().c_str());
-	  }
-	  else
-	    ROS_INFO("Action did not finish before the time out.");
+	if (finished_before_timeout)
+	{
+		actionlib::SimpleClientGoalState state = acTraj.getState();
+		ROS_INFO("Action finished: %s", state.toString().c_str());
+	}
+	else
+		ROS_INFO("Action did not finish before the time out.");
 }
 

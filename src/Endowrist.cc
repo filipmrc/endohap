@@ -1,11 +1,13 @@
 #include <endohap/Endowrist.h>
 
-Endowrist::Endowrist(ros::NodeHandle n) :
+Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 		acTraj("davinci/p4_hand_controller/follow_joint_trajectory", true)
 {
 	joint_sub = n.subscribe("/joint_states", 1, &Endowrist::callback, this);
+	T = r.cycleTime().sec;
 
 	pos.resize(4);
+	last_pos.resize(4);
 	eff.resize(4);
 	vel.resize(4);
 	force = 0;
@@ -26,6 +28,13 @@ void Endowrist::updateStates()
 	pos[0] = (-11 / 8) * state.position[3], pos[1] = (-13 / 14)
 			* state.position[4], pos[2] = state.position[2]
 			- (9 / 14) * state.position[4], pos[3] = pos[2];
+
+	// Endowrist motor angular velocities
+	for(int i = 0;i < 4; i++)
+	{
+		vel[i] = (pos[i]- last_pos[i])/T;
+		last_pos[i] = pos[i];
+	}
 
 	// Efforts //TODO Possibly conversion from current to amps
 	eff[0] = state.effort[0], eff[1] = state.effort[1], eff[2] =

@@ -10,10 +10,9 @@ int main(int argc, char** argv)
 	ros::Rate r(600);
 
 	PhantomOmni omni(n);
-	Endowrist endowrist(n);
+	Endowrist endowrist(n,r);
 
-	std::vector<double> pos;
-	pos.resize(5);
+	std::vector<double> pos (5);
 
 	for(int i= 0;i<5;i++)
 		pos.push_back(1);

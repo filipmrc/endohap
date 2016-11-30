@@ -10,7 +10,7 @@ class Endowrist
 public:
 	double force;
 
-	Endowrist(ros::NodeHandle n);
+	Endowrist(ros::NodeHandle n, ros::Rate r);
 
 	// Fresh data callback function
 	void callback(sensor_msgs::JointState st);
@@ -26,9 +26,10 @@ public:
 
 private:
 	ros::Publisher joint_pub;
+	ros::Subscriber joint_sub;
 	actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> acTraj;
 
 	sensor_msgs::JointState state;
-	std::vector<double> pos, vel, eff;
-	ros::Subscriber joint_sub;
+	std::vector<double> pos, last_pos, vel, eff;
+	double T;
 };

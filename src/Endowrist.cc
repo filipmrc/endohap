@@ -69,5 +69,15 @@ void Endowrist::setJoints(std::vector<double> cmd)
 	}
 
 	acTraj.sendGoal(goal);
+
+	  bool finished_before_timeout = acTraj.waitForResult(ros::Duration(1.0));
+
+	  if (finished_before_timeout)
+	  {
+	    actionlib::SimpleClientGoalState state = acTraj.getState();
+	    ROS_INFO("Action finished: %s",state.toString().c_str());
+	  }
+	  else
+	    ROS_INFO("Action did not finish before the time out.");
 }
 

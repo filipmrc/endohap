@@ -22,6 +22,7 @@ int main(int argc, char** argv)
 	{
 		omni.setFeedback(endowrist.force);
 		pos[2] = omni.state.position[0];
+		ROS_INFO_STREAM(omni.state);
 		pos[0] = -omni.transform_base_stylus.getOrigin().z();
 		pos[3] = omni.transform_base_stylus.getOrigin().z();
 		pos[1] = omni.transform_base_stylus.getOrigin().y();

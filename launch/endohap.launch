@@ -1,4 +1,5 @@
 <launch>
+  <include file="$(find davinci_driver)/launch/davinci_driver.launch" />
   <include file="$(find phantom_omni)/launch/omni_headless.launch" />
   <node name="endohap_node" pkg="endohap" type="endohap_node"/>
 </launch>

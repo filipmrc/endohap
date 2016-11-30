@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 
 	for(int i= 0;i<5;i++)
 		pos.push_back(1);
-	omni.states.position.resize(6);
+	omni.state.position.resize(6);
 
 	while (ros::ok())
 	{

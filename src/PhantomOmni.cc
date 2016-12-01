@@ -3,6 +3,7 @@ PhantomOmni::PhantomOmni(ros::NodeHandle n)
 {
 	force_pub = n.advertise<phantom_omni::OmniFeedback>("omni1_force_feedback",
 			1);
+	diag = n.advertise<geometry_msgs::Vector3>("diagnosis",1),
 	joint_sub = n.subscribe("/omni1_joint_states", 1, &PhantomOmni::callback, this);
 
 }
@@ -27,6 +28,7 @@ void PhantomOmni::setFeedback(double force)
 	feedback.position = pos;
 
 	force_pub.publish(feedback);
+	diag.publish(frc);
 }
 
 void PhantomOmni::updateStates()

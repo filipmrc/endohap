@@ -8,7 +8,7 @@
 class PhantomOmni
 {
 public:
-	ros::Publisher force_pub;
+	ros::Publisher force_pub, diag;
 	ros::Subscriber joint_sub;
 	tf::TransformListener listener;
 	tf::StampedTransform transform_base_stylus;

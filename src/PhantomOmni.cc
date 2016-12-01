@@ -6,7 +6,7 @@ PhantomOmni::PhantomOmni(ros::NodeHandle n)
 	diag = n.advertise<geometry_msgs::Vector3>("diagnosis",1),
 	joint_sub = n.subscribe("/omni1_joint_states", 1, &PhantomOmni::callback, this);
 
-	x = 0, y = 0, z = 0;
+	pos.x = 0, pos.y = 0, pos.z = 0;
 
 }
 
@@ -17,19 +17,14 @@ void PhantomOmni::callback(sensor_msgs::JointState st)
 	updateStates();
 }
 
-void PhantomOmni::setFeedback(double force)
+void PhantomOmni::setFeedback(geometry_msgs::Vector3 fdbk)
 {
 	phantom_omni::OmniFeedback feedback;
-	geometry_msgs::Vector3 frc, blk_pos, pos;
-	
-	double x_p , z_p;
+	geometry_msgs::Vector3 frc, blk_pos;
 
-	z_p = std::sqrt(1/((z*z)/(x*x) + 1));
-	x_p = -(z/x)*z_p;
-
-	frc.x = force*x_p, blk_pos.x = 0;
-	frc.y = 0, blk_pos.y = 0;
-	frc.z = force*z_p, blk_pos.z = 0;
+	frc.x = fdbk.x, blk_pos.x = 0;
+	frc.y = fdbk.y, blk_pos.y = 0;
+	frc.z = fdbk.z, blk_pos.z = 0;
 
 	feedback.force = frc;
 	feedback.position = pos;
@@ -51,8 +46,8 @@ void PhantomOmni::updateStates()
 		ros::Duration(1.0).sleep();
 	}
 
-	x = transform_base_stylus.getOrigin().x();
-	y = transform_base_stylus.getOrigin().y();
-	z = transform_base_stylus.getOrigin().z();
+	pos.x = transform_base_stylus.getOrigin().x();
+	pos.y = transform_base_stylus.getOrigin().y();
+	pos.z = transform_base_stylus.getOrigin().z();
 }
 ;

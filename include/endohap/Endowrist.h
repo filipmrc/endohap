@@ -9,6 +9,7 @@ class Endowrist
 {
 public:
 	double force;
+	std::vector<double> pos, last_pos, vel, eff;
 
 	Endowrist(ros::NodeHandle n, ros::Rate r);
 
@@ -30,6 +31,6 @@ private:
 	actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> acTraj;
 
 	sensor_msgs::JointState state;
-	std::vector<double> pos, last_pos, vel, eff;
+
 	double T;
 };

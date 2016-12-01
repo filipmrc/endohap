@@ -38,7 +38,7 @@ void Endowrist::updateStates()
 
 	// Efforts //TODO Possibly conversion from current to amps
 	eff[0] = state.effort[0], eff[1] = state.effort[1], eff[2] =
-			state.effort[2], eff[3] = state.effort[3];
+			state.effort[3], eff[3] = state.effort[4];
 }
 
 void Endowrist::forceEstimation()

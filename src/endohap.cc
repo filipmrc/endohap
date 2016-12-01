@@ -21,6 +21,8 @@ void Endohap::calculateFeedback(double force, geometry_msgs::Vector3 pos)
 
 void Endohap::loop()
 {
+
+	calculateFeedback(endowrist.force,omni.pos);
 	std::vector<double> pos(5);
 
 	for (int i = 0; i < 5; i++)

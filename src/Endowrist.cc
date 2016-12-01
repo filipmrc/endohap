@@ -43,9 +43,8 @@ void Endowrist::updateStates()
 
 void Endowrist::forceEstimation()
 {
-	double m = 0.0028, b = -0.8259;
-	//force = m * eff[2] + b;
-	force = 35*eff[2];
+	double m = 20;
+	force = m*eff[2];
 }
 
 void Endowrist::setJoints(std::vector<double> cmd)

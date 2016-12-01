@@ -11,8 +11,9 @@ public:
 	ros::Publisher force_pub, diag;
 	ros::Subscriber joint_sub;
 	tf::TransformListener listener;
-	tf::StampedTransform transform_base_stylus;
 	sensor_msgs::JointState state;
+
+	double x, y, z;
 
 	PhantomOmni(ros::NodeHandle n);
 
@@ -25,5 +26,7 @@ private:
 
 	// Update states for both the endowrist and phantom omni
 	void updateStates();
+
+	tf::StampedTransform transform_base_stylus;
 
 };

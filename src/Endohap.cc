@@ -1,6 +1,3 @@
-#include <ros/ros.h>
-#include <endohap/Endowrist.h>
-#include <endohap/PhantomOmni.h>
 #include <endohap/Endohap.h>
 
 Endohap::Endohap(ros::NodeHandle n, ros::Rate r) :
@@ -21,7 +18,6 @@ void Endohap::calculateFeedback(double force, geometry_msgs::Vector3 pos)
 
 void Endohap::loop()
 {
-
 	calculateFeedback(endowrist.force,omni.pos);
 	std::vector<double> pos(5);
 
@@ -41,7 +37,7 @@ int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "omni_haptic_node");
 	ros::NodeHandle n;
-	ros::Rate r(600);
+	ros::Rate r(10000);
 
 	Endohap endohap(n, r);
 

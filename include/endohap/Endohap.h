@@ -1,3 +1,6 @@
+#include <endohap/Endowrist.h>
+#include <endohap/PhantomOmni.h>
+
 class Endohap
 {
 public:

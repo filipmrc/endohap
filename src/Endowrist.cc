@@ -10,7 +10,7 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 	last_pos.resize(4);
 	eff.resize(4);
 	vel.resize(4);
-	force = 0;
+	force.x = 0; force.y = 0; force.z = 0;
 }
 
 void Endowrist::callback(sensor_msgs::JointState st)
@@ -44,7 +44,7 @@ void Endowrist::updateStates()
 void Endowrist::forceEstimation()
 {
 	double m = 20;
-	force = m*eff[2];
+	force.x = m*eff[2];
 }
 
 void Endowrist::setJoints(std::vector<double> cmd)

@@ -6,14 +6,14 @@ Endohap::Endohap(ros::NodeHandle n, ros::Rate r) :
 	feedback.x = 0, feedback.y = 0, feedback.z = 0;
 }
 
-void Endohap::calculateFeedback(double force, geometry_msgs::Vector3 pos)
+void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos)
 {
 	double x_p, z_p;
 
 	z_p = std::sqrt(1 / ((pos.z * pos.z) / (pos.x * pos.x) + 1));
 	x_p = -(pos.z / pos.x) * z_p;
 
-	feedback.x = x_p, feedback.y = 0, feedback.z = z_p;
+	feedback.x = force.x*x_p, feedback.y = 0, feedback.z = force.x*z_p;
 }
 
 void Endohap::loop()

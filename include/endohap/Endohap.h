@@ -6,7 +6,7 @@ class Endohap
 public:
 	Endohap(ros::NodeHandle n, ros::Rate r);
 
-	void calculateFeedback(double force, geometry_msgs::Vector3 pos);
+	void calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos);
 
 	void loop();
 

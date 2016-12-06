@@ -8,7 +8,7 @@
 class Endowrist
 {
 public:
-	double force;
+	geometry_msgs::Vector3 force;
 	std::vector<double> pos, last_pos, vel, eff;
 
 	Endowrist(ros::NodeHandle n, ros::Rate r);

@@ -126,5 +126,4 @@ void Endowrist::setJoints(std::vector<double> cmd)
 		ROS_INFO("Action did not finish before the time out.");
 }
 
-void Endowrist::saturation(double* force, double bound)
 

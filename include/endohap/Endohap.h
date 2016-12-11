@@ -15,4 +15,6 @@ private:
 	Endowrist endowrist;
 	geometry_msgs::Vector3 feedback;
 	void saturation(double* force, double bound);
+	void deadzone(double* value, double bound);
+	int signum(double* d);
 };

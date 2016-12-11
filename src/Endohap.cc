@@ -10,14 +10,19 @@ void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vec
 {
 	double x_p, z_p;
 
+	double previous_x = feedback.x;
+
 	z_p = std::sqrt(1 / ((pos.z * pos.z) / (pos.x * pos.x) + 1));
 	x_p = -(pos.z / pos.x) * z_p;
 
 	feedback.x = force.x*x_p, feedback.y = force.z, feedback.z = force.x*z_p + force.y;
+	
+	//feedback.x = previous_x + (feedback.x - previous_x);
 
-	saturation(&feedback.x,3.0);
-	saturation(&feedback.y,3.0);
-	saturation(&feedback.z,3.0);
+
+	saturation(&feedback.x,2.0);
+	saturation(&feedback.y,2.0);
+	saturation(&feedback.z,2.0);
 
 	printf("%f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
 }
@@ -60,5 +65,19 @@ void Endohap::saturation(double* force, double bound)
 {
 	if (*force > bound) *force = bound;
 	if (*force < -bound) *force = -bound;
+	if (*force != *force) *force = 0.0;
+}
+
+void Endohap::deadzone(double* value, double bound)
+{
+	if (abs(*value) < bound)
+		*value = 0.0;
+	else
+		*value = *value + (signum(value)*bound); 
+}
+
+int Endohap::signum(double* d)
+{
+	return (*d > 0) - (*d < 0);
 }
 

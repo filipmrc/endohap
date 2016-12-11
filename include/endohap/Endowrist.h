@@ -4,6 +4,9 @@
 #include <phantom_omni/OmniFeedback.h>
 #include <sensor_msgs/JointState.h>
 #include <actionlib/client/simple_action_client.h>
+#include <Eigen/Dense>
+
+using Eigen::MatrixXd;
 
 class Endowrist
 {
@@ -29,8 +32,8 @@ private:
 	ros::Publisher joint_pub;
 	ros::Subscriber joint_sub;
 	actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> acTraj;
-
 	sensor_msgs::JointState state;
 
 	double T;
+	MatrixXd A_y, B_y, C_y, A_p, B_p, C_p, x_y, x_p, y_y, y_p;
 };

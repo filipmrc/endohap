@@ -13,7 +13,7 @@ void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vec
 	z_p = std::sqrt(1 / ((pos.z * pos.z) / (pos.x * pos.x) + 1));
 	x_p = -(pos.z / pos.x) * z_p;
 
-	feedback.x = force.x*x_p, feedback.y = 0, feedback.z = force.x*z_p;
+	feedback.x = force.x*x_p, feedback.y = force.z, feedback.z = force.x*z_p + force.y;
 }
 
 void Endohap::loop()

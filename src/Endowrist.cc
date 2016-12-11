@@ -12,10 +12,11 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 	vel.resize(4);
 	force.x = 0; force.y = 0; force.z = 0;
 
-
+printf("hello\n");
 	// initialize yaw model
-	A_y(6,6), B_y(6,1), C_y(2,6), x_y(6,1), y_y(2,1),
-	A_p(4,4), B_p(4,1), C_p(2,4), x_p(4,1), y_p(2,1);
+	A_y.resize(6,6), B_y.resize(6,1), C_y.resize(2,6), x_y.resize(6,1), y_y.resize(2,1),
+	A_p.resize(4,4), B_p.resize(4,1), C_p.resize(2,4), x_p.resize(4,1), y_p.resize(2,1);
+printf("hello1\n");
 
 
 	A_y <<     0.5509,   -0.0109,    0.0007,   -0.0047,   -0.0010,    0.0016,
@@ -26,7 +27,7 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 			   -4.5210,    0.1822,    0.0715,   -0.2109,    0.1712,   -0.3489;
 
 	B_y <<    -0.1910,   16.4717,   29.1913,    4.2352,  -39.4381, -169.9798;
-
+printf("hello\n");
 	C_y <<     0.0900,   -0.0624,    0.0619,   -0.0352,   -0.0026,   -0.0016,
 		       0.0009,    0.0008,   -0.0005,    0.0001,    0.0000,   -0.0000;
 
@@ -44,6 +45,7 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 		   -0.0081,    0.0013,    0.0056,    0.0011;
 
 	x_p << 0, 0, 0, 0;
+printf("it's me again\n");
 }
 
 void Endowrist::callback(sensor_msgs::JointState st)
@@ -87,8 +89,9 @@ void Endowrist::forceEstimation()
 	force.z = y_p(1);
 
 	// roll
-	double m = 20;
+	double m = 5;
 	force.x = m*eff[2];
+
 }
 
 void Endowrist::setJoints(std::vector<double> cmd)
@@ -122,4 +125,5 @@ void Endowrist::setJoints(std::vector<double> cmd)
 	else
 		ROS_INFO("Action did not finish before the time out.");
 }
+
 

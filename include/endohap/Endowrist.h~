@@ -37,4 +37,5 @@ private:
 	double T;
 	MatrixXd A_y, B_y, C_y, A_p, B_p, C_p, x_y, x_p, y_y, y_p;
 
+	void saturation(double* force, double bound);
 };

@@ -14,5 +14,4 @@ private:
 	PhantomOmni omni;
 	Endowrist endowrist;
 	geometry_msgs::Vector3 feedback;
-	void saturation(double* force, double bound);
 };

@@ -17,6 +17,8 @@ public:
 
 	Endowrist(ros::NodeHandle n, ros::Rate r);
 
+	void initializeModels();
+
 	// Fresh data callback function
 	void callback(sensor_msgs::JointState st);
 

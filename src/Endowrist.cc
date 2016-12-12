@@ -42,6 +42,7 @@ void Endowrist::initializeModels()
 
 	x_y << 0, 0, 0, 0, 0, 0;
 
+
 	f1.initializeFilter(A_y,B_y,C_y,Q_y,R_y,x_y);
 
 	// initialize pitch model
@@ -95,17 +96,21 @@ void Endowrist::forceEstimation()
 	//	z 	roll		2		eff[0]
 	MatrixXd yv(2,1), u(1,1), ye(2,1);
 
+	if (!std::isfinite(vel[0])) vel[0] = 0.0;
+
+
 	// yaw
 	yv << vel[0], 0;
 	u << eff[0];
 	ye = f1.estimateOutput(yv,u);
-	force.y = ye(2);
+	force.y = ye(1);
 
 
-	//pitch
+
+	// pitch
 	x_p = A_p*x_p + B_p*eff[4];
 	y_p = C_p*x_p;
-	force.x = y_p(1);
+	force.x = y_p(0);
 
 
 	// roll

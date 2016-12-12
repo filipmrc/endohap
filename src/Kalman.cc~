@@ -30,7 +30,7 @@ MatrixXd Kalman::estimateOutput(MatrixXd yv, MatrixXd u)
 
 	MatrixXd I = MatrixXd::Identity(A.rows(),A.cols());
 	P = (I - Mn*C)*P;
-
+	std::cout << P << std::endl;
 
 	MatrixXd ye = C*x;
 

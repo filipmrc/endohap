@@ -40,8 +40,8 @@ void Endohap::loop()
 
 	omni.setFeedback(feedback);
 	pos[2] = omni.state.position[0];
-	pos[0] = -omni.pos.z;
-	pos[3] = omni.pos.z;
+	pos[0] = omni.pos.z;
+	pos[3] = -omni.pos.y;
 	pos[1] = omni.pos.y;
 	endowrist.setJoints(pos);
 }

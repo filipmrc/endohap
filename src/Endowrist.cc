@@ -12,12 +12,16 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 	vel.resize(4);
 	force.x = 0; force.y = 0; force.z = 0;
 
+	initializeModels();
+}
 
+void Endowrist::initializeModels()
+{
 	// initialize yaw model
 	A_y.resize(6,6), B_y.resize(6,1), C_y.resize(2,6), x_y.resize(6,1), y_y.resize(2,1),
 	A_p.resize(4,4), B_p.resize(4,1), C_p.resize(2,4), x_p.resize(4,1), y_p.resize(2,1);
-
-
+//	MatrixXd A_y(6,6), B_y(6,1), C_y(2,6), A_p(4,4), B_p(4,1), C_p(2,4),
+//			 x_y(6,1), x_p(4,1), y_y(2,1), y_p(2,1), Q_y(1,1), Q_p(1,1), R_y(2,2), R_p(2,2);
 
 	A_y <<     0.5509,   -0.0109,    0.0007,   -0.0047,   -0.0010,    0.0016,
 			   10.4518,    0.5990,   -0.1192,    0.1213,   -0.0200,   -0.0280,
@@ -31,7 +35,13 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 	C_y <<     0.0900,   -0.0624,    0.0619,   -0.0352,   -0.0026,   -0.0016,
 		       0.0009,    0.0008,   -0.0005,    0.0001,    0.0000,   -0.0000;
 
+	Q_y << 0.0005*0.0005;
+
+	R_y << 0.00001*0.00001, 0 ,0, (unsigned int)100000*100000;
+
 	x_y << 0, 0, 0, 0, 0, 0;
+
+	f1.initializeFilter(A_y,B_y,C_y,Q_y,R_y,x_y);
 
 	// initialize pitch model
 	A_p <<  0.9034,   -0.3638,    0.0805,    0.1389,
@@ -45,7 +55,6 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 		   -0.0081,    0.0013,    0.0056,    0.0011;
 
 	x_p << 0, 0, 0, 0;
-
 }
 
 void Endowrist::callback(sensor_msgs::JointState st)

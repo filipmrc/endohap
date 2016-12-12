@@ -87,19 +87,19 @@ void Endowrist::forceEstimation()
 
 
 	//pitch
-	x_p = A_p*x_p + B_p*eff[2];
+	x_p = A_p*x_p + B_p*eff[4];
 	y_p = C_p*x_p;
 	force.x = y_p(1);
 
 	// yaw
-	x_y = A_y*x_y + B_y*eff[0];
+	x_y = A_y*x_y + B_y*eff[1];
 	y_y = C_y*x_y;
 	force.y = 2*1000*y_y(1);
 
 
 	// roll
 	double m = 5;
-	force.z = m*eff[2];
+	force.z = m*eff[0];
 
 
 

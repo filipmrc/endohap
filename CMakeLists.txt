@@ -129,13 +129,17 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(endohap_node src/Endohap.cc src/Endowrist.cc src/PhantomOmni.cc src/Kalman.cc)
-
+add_executable(endohap_test src/test.cc src/Kalman.cc)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(endohap_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(endohap_node
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(endohap_test
   ${catkin_LIBRARIES}
 )
 

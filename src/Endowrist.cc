@@ -92,18 +92,19 @@ void Endowrist::forceEstimation()
 	//	x 	pitch		3		eff[4]
 	//	y 	clamp		1 & 4		eff[1] & eff[3]
 	//	z 	roll		2		eff[0]
+	MatrixXd yv(2,1), u(1,1), ye(2,1);
 
+	// yaw
+	yv << vel[0], 0;
+	u << eff[0];
+	ye = f1.estimateOutput(yv,u);
+	force.y = ye(2);
 
 
 	//pitch
 	x_p = A_p*x_p + B_p*eff[4];
 	y_p = C_p*x_p;
 	force.x = y_p(1);
-
-	// yaw
-	x_y = A_y*x_y + B_y*eff[1];
-	y_y = C_y*x_y;
-	force.y = 2*1000*y_y(1);
 
 
 	// roll

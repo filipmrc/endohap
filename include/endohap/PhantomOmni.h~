@@ -11,7 +11,6 @@ public:
 	sensor_msgs::JointState state;
 
 	geometry_msgs::Vector3 pos;
-	geometry_msgs::Vector3 velocities;
 
 	PhantomOmni(ros::NodeHandle n);
 

@@ -45,9 +45,14 @@ void PhantomOmni::updateStates()
 		ROS_ERROR("%s", ex.what());
 		ros::Duration(1.0).sleep();
 	}
+	geometry_msgs::Vector3 previous_position = pos;
 
 	pos.x = transform_base_stylus.getOrigin().x();
 	pos.y = transform_base_stylus.getOrigin().y();
 	pos.z = transform_base_stylus.getOrigin().z();
+
+	velocities.x = pos.x - previous_position.x;
+	velocities.y = pos.y - previous_position.y;
+	velocities.z = pos.z - previous_position.z;
 }
 ;

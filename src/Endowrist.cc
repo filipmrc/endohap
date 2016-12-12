@@ -78,19 +78,32 @@ void Endowrist::updateStates()
 
 void Endowrist::forceEstimation()
 {
+	//	omni	joint		motor		joint_states
+	//
+	//	x 	pitch		3		eff[4]
+	//	y 	clamp		1 & 4		eff[1] & eff[3]
+	//	z 	roll		2		eff[0]
+
+
+
+	//pitch
+	x_p = A_p*x_p + B_p*eff[4];
+	y_p = C_p*x_p;
+	force.x = y_p(1);
+
 	// yaw
-	x_y = A_y*x_y + B_y*eff[0];
+	x_y = A_y*x_y + B_y*eff[1];
 	y_y = C_y*x_y;
 	force.y = 2*1000*y_y(1);
 
-	//pitch
-	x_p = A_p*x_p + B_p*eff[2];
-	y_p = C_p*x_p;
-	force.z = y_p(1);
 
 	// roll
 	double m = 5;
-	force.x = m*eff[2];
+	force.z = m*eff[0];
+
+
+
+	printf("force.x = %f,\tforce.y = %f,\tforce.z = %f\n",force.x,force.y,force.z);
 
 }
 

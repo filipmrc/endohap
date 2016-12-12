@@ -22,6 +22,7 @@ MatrixXd Kalman::estimateOutput(MatrixXd yv, MatrixXd u)
 	std::cout << Mn << std::endl;
 
 	x = x + Mn*(yv-C*x);
+	std::cout << C*x << std::endl;
 	std::cout << (yv-C*x) << std::endl;
 	std::cout << x << std::endl;
 

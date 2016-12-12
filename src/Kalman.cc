@@ -19,11 +19,14 @@ MatrixXd Kalman::estimateOutput(MatrixXd yv, MatrixXd u)
 	MatrixXd M_;
 	M_ = C*P*C.transpose()+R;
 	Mn = (P*C.transpose())*M_.inverse();
+	std::cout << Mn << std::endl;
 
 	x = x + Mn*(yv-C*x);
+	std::cout << x << std::endl;
 
 	MatrixXd I = MatrixXd::Identity(A.rows(),A.cols());
 	P = (I - Mn*C)*P;
+	std::cout << P << std::endl;
 
 	MatrixXd ye = C*x;
 

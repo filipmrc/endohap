@@ -38,8 +38,7 @@ private:
 	sensor_msgs::JointState state;
 		
 	double T;
-	MatrixXd A_y, B_y, C_y, A_p, B_p, C_p,
-	x_y, x_p, y_y, y_p, Q_y, Q_p, R_y, R_p;
-	Kalman f1;
+	MatrixXd A_p, B_p, C_p, x_p, y_p, Q_p, R_p;
+	Kalman f_yaw, f_pitch;
 
 };

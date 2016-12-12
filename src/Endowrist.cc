@@ -4,7 +4,7 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 		acTraj("davinci/p4_hand_controller/follow_joint_trajectory", true)
 {
 	joint_sub = n.subscribe("/joint_states", 1, &Endowrist::callback, this);
-	T = r.cycleTime().sec;
+	T = 1/900;
 
 	pos.resize(4);
 	last_pos.resize(4);
@@ -18,32 +18,30 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 void Endowrist::initializeModels()
 {
 	// initialize yaw model
-	A_y.resize(6,6), B_y.resize(6,1), C_y.resize(2,6), x_y.resize(6,1), y_y.resize(2,1), Q_y.resize(1,1), R_y.resize(2,2),
 	A_p.resize(4,4), B_p.resize(4,1), C_p.resize(2,4), x_p.resize(4,1), y_p.resize(2,1);
-//	MatrixXd A_y(6,6), B_y(6,1), C_y(2,6), A_p(4,4), B_p(4,1), C_p(2,4),
-//			 x_y(6,1), x_p(4,1), y_y(2,1), y_p(2,1), Q_y(1,1), Q_p(1,1), R_y(2,2), R_p(2,2);
+    MatrixXd A_yaw(6,6), B_yaw(6,1), C_yaw(2,6), x_yaw(6,1), y_yaw(2,1), Q_yaw(1,1), R_yaw(2,2);
 
 
-	A_y <<     0.5509,   -0.0109,    0.0007,   -0.0047,   -0.0010,    0.0016,
+	A_yaw <<     0.5509,   -0.0109,    0.0007,   -0.0047,   -0.0010,    0.0016,
 			   10.4518,    0.5990,   -0.1192,    0.1213,   -0.0200,   -0.0280,
 			   10.0873,   -0.4123,    0.8314,    0.0783,    0.1449,    0.0884,
 			  -16.8556,    0.6775,    0.3087,    0.6162,   -0.0598,    0.2676,
 			    4.5207,   -0.1856,   -0.0992,    0.2189,    0.0859,   -0.5281,
 			   -4.5210,    0.1822,    0.0715,   -0.2109,    0.1712,   -0.3489;
 
-	B_y <<    -0.1910,   16.4717,   29.1913,    4.2352,  -39.4381, -169.9798;
+	B_yaw <<    -0.1910,   16.4717,   29.1913,    4.2352,  -39.4381, -169.9798;
 
-	C_y <<     0.0900,   -0.0624,    0.0619,   -0.0352,   -0.0026,   -0.0016,
+	C_yaw <<     0.0900,   -0.0624,    0.0619,   -0.0352,   -0.0026,   -0.0016,
 		       0.0009,    0.0008,   -0.0005,    0.0001,    0.0000,   -0.0000;
 
-	Q_y << 0.0005*0.0005;
+	Q_yaw << 0.0005*0.0005;
 
-	R_y << 0.00001*0.00001/T, 0 ,0, (unsigned int)100000*100000/T;
+	R_yaw << 0.00001*0.00001/T, 0 ,0, (unsigned int)100000*100000/T;
 
-	x_y << 0, 0, 0, 0, 0, 0;
+	x_yaw << 0, 0, 0, 0, 0, 0;
 
 
-	f1.initializeFilter(A_y,B_y,C_y,Q_y,R_y,x_y);
+	f_yaw.initializeFilter(A_yaw,B_yaw,C_yaw,Q_yaw,R_yaw,x_yaw);
 
 	// initialize pitch model
 	A_p <<  0.9034,   -0.3638,    0.0805,    0.1389,
@@ -79,6 +77,7 @@ void Endowrist::updateStates()
 	for (int i = 0; i < 4; i++)
 	{
 		vel[i] = (pos[i] - last_pos[i]) / T;
+		if (!std::isfinite(vel[i])) vel[i] = 0.0;
 		last_pos[i] = pos[i];
 	}
 
@@ -94,23 +93,23 @@ void Endowrist::forceEstimation()
 	//	x 	pitch		3		eff[4]
 	//	y 	clamp		1 & 4		eff[1] & eff[3]
 	//	z 	roll		2		eff[0]
-	MatrixXd yv(2,1), u(1,1), ye(2,1);
-
-	if (!std::isfinite(vel[0])) vel[0] = 0.0;
-
+	MatrixXd yv(2,1), u(1,1), ye1(2,1), ye2(2,1), ye3(2,1), ye4(2,1);
 
 	// yaw
-	yv << vel[0], 0;
-	u << eff[0];
-	ye = f1.estimateOutput(yv,u);
-	force.y = ye(1);
+	yv << vel[1], 0;
+	u << eff[1];
+	ye1 = f_yaw.estimateOutput(yv,u);
+	yv << vel[3], 0;
+	u << eff[3];
+	ye4 = f_yaw.estimateOutput(yv,u);
+	force.x = (ye1(1) + ye4(1))/2;
 
 
 
 	// pitch
 	x_p = A_p*x_p + B_p*eff[4];
 	y_p = C_p*x_p;
-	force.x = y_p(0);
+	force.y = y_p(0);
 
 
 	// roll

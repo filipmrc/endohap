@@ -15,9 +15,9 @@ void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vec
 	z_p = std::sqrt(1 / ((pos.z * pos.z) / (pos.x * pos.x) + 1));
 	x_p = -(pos.z / pos.x) * z_p;
 
-	feedback.x = force.x*x_p;
+	feedback.x = force.z*x_p;
 	feedback.y = force.y;
-	feedback.z = force.x*z_p + force.z;
+	feedback.z = force.z*z_p + force.z;
 
 
 
@@ -39,10 +39,10 @@ void Endohap::loop()
 	omni.state.position.resize(6);
 
 	omni.setFeedback(feedback);
-	pos[2] = omni.state.position[0];
-	pos[0] = omni.pos.z;
-	pos[3] = -omni.pos.y;
-	pos[1] = omni.pos.y;
+	pos[0] = omni.state.position[0];
+	pos[2] = omni.pos.y;
+	pos[3] = -omni.pos.z;
+	pos[1] = omni.pos.z;
 	endowrist.setJoints(pos);
 }
 

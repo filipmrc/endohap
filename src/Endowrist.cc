@@ -18,7 +18,7 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 void Endowrist::initializeModels()
 {
 	// initialize yaw model
-	A_y.resize(6,6), B_y.resize(6,1), C_y.resize(2,6), x_y.resize(6,1), y_y.resize(2,1),
+	A_y.resize(6,6), B_y.resize(6,1), C_y.resize(2,6), x_y.resize(6,1), y_y.resize(2,1), Q_y.resize(1,1), R_y.resize(2,2),
 	A_p.resize(4,4), B_p.resize(4,1), C_p.resize(2,4), x_p.resize(4,1), y_p.resize(2,1);
 //	MatrixXd A_y(6,6), B_y(6,1), C_y(2,6), A_p(4,4), B_p(4,1), C_p(2,4),
 //			 x_y(6,1), x_p(4,1), y_y(2,1), y_p(2,1), Q_y(1,1), Q_p(1,1), R_y(2,2), R_p(2,2);

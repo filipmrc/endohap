@@ -4,6 +4,7 @@
 #include <phantom_omni/OmniFeedback.h>
 #include <sensor_msgs/JointState.h>
 #include <actionlib/client/simple_action_client.h>
+#include <endohap/Kalman.h>
 #include <Eigen/Dense>
 
 using Eigen::MatrixXd;

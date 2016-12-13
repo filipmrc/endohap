@@ -17,20 +17,16 @@ void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vec
 	x_y = (pos.x)/r;
 	y_y = (pos.y)/r;
 
-	feedback.x = force.x*x_r + force.y*x_y;
-	feedback.y = force.x*y_r + force.y*y_y;
-	feedback.z = force.z ;
+	feedback.x = force.y*x_y;//force.x*x_r + force.y*x_y;
+	feedback.y = force.y*y_y;//force.x*y_r + force.y*y_y;
+	feedback.z = 0*force.z ;
 
 	m = std::sqrt((feedback.x * feedback.x)  + (feedback.y * feedback.y) + (feedback.z * feedback.z));
 
-	feedback.x = 3*(feedback.x/m);
-	feedback.y = 3*(feedback.y/m);
-	feedback.z = 3*(feedback.z/m);
+	//printf("feedback: %f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
 
-	printf("feedback: %f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
-
-	saturation(&feedback.x,2.5);
-	saturation(&feedback.y,2.5);
+	saturation(&feedback.x,2);
+	saturation(&feedback.y,2);
 	saturation(&feedback.z,2.5);
 
 	//printf("velocities: %f\t%f\t%f\t\n", omni.velocities.x,omni.velocities.y,omni.velocities.z);
@@ -51,7 +47,6 @@ void Endohap::loop()
 	pos[3] = -5.384*r + 0.7;
 	pos[0] = 5.384*r - 0.7;
 
-	std::cout << pos[3] << std::endl;
 	endowrist.setJoints(pos);
 }
 
@@ -72,23 +67,5 @@ int main(int argc, char** argv)
 
 }
 
-void Endohap::saturation(double* force, double bound)
-{
-	if (*force > bound) *force = bound;
-	if (*force < -bound) *force = -bound;
-	if (*force != *force) *force = 0.0;
-}
 
-void Endohap::deadzone(double* value, double bound)
-{
-	if (abs(*value) < bound)
-		*value = 0.0;
-	else
-		*value = *value + (signum(value)*bound); 
-}
-
-int Endohap::signum(double* d)
-{
-	return (*d > 0) - (*d < 0);
-}
 

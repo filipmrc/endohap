@@ -1,5 +1,6 @@
 #include <endohap/Endowrist.h>
 #include <endohap/PhantomOmni.h>
+#include <endohap/utils.h>
 
 class Endohap
 {
@@ -15,7 +16,4 @@ private:
 	Endowrist endowrist;
 	geometry_msgs::Vector3 feedback;
 	double r;
-	void saturation(double* force, double bound);
-	void deadzone(double* value, double bound);
-	int signum(double* d);
 };

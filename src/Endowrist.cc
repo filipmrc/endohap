@@ -4,7 +4,7 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 		acTraj("davinci/p4_hand_controller/follow_joint_trajectory", true)
 {
 	joint_sub = n.subscribe("/joint_states", 1, &Endowrist::callback, this);
-	T = 1/900;
+	T = r.cycleTime().sec;
 
 	pos.resize(4);
 	last_pos.resize(4);
@@ -22,21 +22,21 @@ void Endowrist::initializeModels()
     MatrixXd A_yaw(6,6), B_yaw(6,1), C_yaw(2,6), x_yaw(6,1), y_yaw(2,1), Q_yaw(1,1), R_yaw(2,2);
 
 
-	A_yaw <<     0.5509,   -0.0109,    0.0007,   -0.0047,   -0.0010,    0.0016,
-			   10.4518,    0.5990,   -0.1192,    0.1213,   -0.0200,   -0.0280,
-			   10.0873,   -0.4123,    0.8314,    0.0783,    0.1449,    0.0884,
-			  -16.8556,    0.6775,    0.3087,    0.6162,   -0.0598,    0.2676,
-			    4.5207,   -0.1856,   -0.0992,    0.2189,    0.0859,   -0.5281,
-			   -4.5210,    0.1822,    0.0715,   -0.2109,    0.1712,   -0.3489;
+	A_yaw <<    0.9804,    0.0851,    0.1636,    0.1836,    0.0759,    0.1819,
+			   -0.0119,    0.6809,   -0.2967,    0.4604,   -0.4634,    0.1466,
+			   -0.0012,    0.2670,    0.9193,    0.0268,   -0.2378,   -0.1622,
+			   -0.0020,   -0.0913,    0.0933,    0.5568,    0.1060,   -0.3030,
+			    0.0008,    0.0198,   -0.0275,    0.5082,    0.7115,   -0.3731,
+			   -0.0003,   -0.0059,    0.0127,   -0.1328,    0.3285,    0.4622;
 
-	B_yaw <<    -0.1910,   16.4717,   29.1913,    4.2352,  -39.4381, -169.9798;
+	B_yaw <<    -0.2150,   -1.2980,   -1.5127,    2.0888,   -1.2082,    1.7883;
 
-	C_yaw <<     0.0900,   -0.0624,    0.0619,   -0.0352,   -0.0026,   -0.0016,
-		       0.0009,    0.0008,   -0.0005,    0.0001,    0.0000,   -0.0000;
+	C_yaw <<     0.0594,   -0.6962,    0.0325,    0.4309,   -0.4352,    0.0929,
+				-0.3510,    0.0089,    0.2817,    0.3199,    0.2157,    0.5793;
 
-	Q_yaw << 0.0005*0.0005;
+	Q_yaw << 0.000001*0.000001;
 
-	R_yaw << 0.00001*0.00001/T, 0 ,0, (unsigned int)100000*100000/T;
+	R_yaw << 0.000001*0.000001/T, 0 ,0, (unsigned int)100000000*100000000/T;
 
 	x_yaw << 0, 0, 0, 0, 0, 0;
 
@@ -69,9 +69,12 @@ void Endowrist::callback(sensor_msgs::JointState st)
 void Endowrist::updateStates()
 {
 	// Physical motor angles Endowrist used in the dynamic model
-	pos[0] = (-11 / 8) * state.position[3], pos[1] = (-13 / 14)
-			* state.position[4], pos[2] = state.position[2]
-			- (9 / 14) * state.position[4], pos[3] = pos[2];
+//	pos[0] = (-11 / 8) * state.position[3], pos[1] = (-13 / 14)
+//			* state.position[4], pos[2] = state.position[2]
+//			- (9 / 14) * state.position[4], pos[3] = pos[2];
+
+	double co = 1.953125;
+	pos[0] = co*state.position[0], pos[1] = co*state.position[1], pos[2] = co*state.position[3] , pos[3] = co*state.position[4];
 
 	// Endowrist motor angular velocities
 	for (int i = 0; i < 4; i++)
@@ -102,7 +105,7 @@ void Endowrist::forceEstimation()
 	yv << vel[3], 0;
 	u << eff[3];
 	ye4 = f_yaw.estimateOutput(yv,u);
-	force.y = 1000*(ye1(1) + ye4(1))/2;
+	force.y = ye4(1);
 
 
 
@@ -116,7 +119,7 @@ void Endowrist::forceEstimation()
 	double m = 1;
 	force.x = m*eff[1];
 
-	printf("force.x = %f,\tforce.y = %f,\tforce.z = %f\n",force.x,force.y,force.z);
+	//printf("force.x = %f,\tforce.y = %f,\tforce.z = %f\n",force.x,force.y,force.z);
 
 }
 
@@ -135,7 +138,7 @@ void Endowrist::setJoints(std::vector<double> cmd)
 	for (int i = 0; i < 5; i++)
 	{
 		goal.trajectory.joint_names.push_back(args[i]);
-		goal.trajectory.points[0].time_from_start = ros::Duration(0.01);
+		goal.trajectory.points[0].time_from_start = ros::Duration(0.0001);
 		goal.trajectory.points[0].positions[i] = cmd[i];
 	}
 
@@ -145,8 +148,8 @@ void Endowrist::setJoints(std::vector<double> cmd)
 
 	if (finished_before_timeout)
 	{
-		actionlib::SimpleClientGoalState state = acTraj.getState();
-		ROS_INFO("Action finished: %s", state.toString().c_str());
+		//actionlib::SimpleClientGoalState state = acTraj.getState();
+		//ROS_INFO("Action finished: %s", state.toString().c_str());
 	}
 	else
 		ROS_INFO("Action did not finish before the time out.");

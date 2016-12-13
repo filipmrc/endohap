@@ -22,12 +22,12 @@ void PhantomOmni::setFeedback(geometry_msgs::Vector3 fdbk)
 	phantom_omni::OmniFeedback feedback;
 	geometry_msgs::Vector3 frc, blk_pos;
 
-	frc.x = fdbk.x, blk_pos.x = 0;
-	frc.y = fdbk.y, blk_pos.y = 0;
-	frc.z = fdbk.z, blk_pos.z = 0;
+	frc.x = -fdbk.x, blk_pos.x = 0;
+	frc.y = -fdbk.z, blk_pos.y = 0;
+	frc.z = -fdbk.y, blk_pos.z = 0;
 
 	feedback.force = frc;
-	feedback.position = pos;
+	feedback.position = blk_pos;
 
 	force_pub.publish(feedback);
 	diag.publish(frc);

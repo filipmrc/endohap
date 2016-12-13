@@ -102,21 +102,19 @@ void Endowrist::forceEstimation()
 	yv << vel[3], 0;
 	u << eff[3];
 	ye4 = f_yaw.estimateOutput(yv,u);
-	force.x = (ye1(1) + ye4(1))/2;
+	force.y = 1000*(ye1(1) + ye4(1))/2;
 
 
 
 	// pitch
 	x_p = A_p*x_p + B_p*eff[4];
 	y_p = C_p*x_p;
-	force.y = y_p(0);
+	force.z = 0;//y_p(1);
 
 
 	// roll
-	double m = 5;
-	force.z = m*eff[0];
-
-
+	double m = 1;
+	force.x = m*eff[1];
 
 	printf("force.x = %f,\tforce.y = %f,\tforce.z = %f\n",force.x,force.y,force.z);
 

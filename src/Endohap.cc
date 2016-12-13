@@ -1,32 +1,39 @@
 #include <endohap/Endohap.h>
 
-Endohap::Endohap(ros::NodeHandle n, ros::Rate r) :
-		omni(n), endowrist(n, r)
+Endohap::Endohap(ros::NodeHandle n, ros::Rate rate) :
+		omni(n), endowrist(n, rate)
 {
-	feedback.x = 0, feedback.y = 0, feedback.z = 0;
+	feedback.x = 0, feedback.y = 0, feedback.z = 0; r = 0;
 }
 
 void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos)
 {
-	double x_p, z_p;
+	double x_r, y_r, x_y, y_y, m;
 
+	r = std::sqrt((pos.y * pos.y)  + (pos.x * pos.x));
 
+	y_r = std::sqrt(1 / ((pos.y * pos.y) / (pos.x * pos.x) + 1));
+	x_r = -(pos.y / pos.x) * y_r;
+	x_y = (pos.x)/r;
+	y_y = (pos.y)/r;
 
-	z_p = std::sqrt(1 / ((pos.z * pos.z) / (pos.x * pos.x) + 1));
-	x_p = -(pos.z / pos.x) * z_p;
+	feedback.x = force.x*x_r + force.y*x_y;
+	feedback.y = force.x*y_r + force.y*y_y;
+	feedback.z = force.z ;
 
-	feedback.x = force.z*x_p;
-	feedback.y = force.y;
-	feedback.z = force.z*z_p + force.z;
+	m = std::sqrt((feedback.x * feedback.x)  + (feedback.y * feedback.y) + (feedback.z * feedback.z));
 
-
-
-	saturation(&feedback.x,2.0);
-	saturation(&feedback.y,2.0);
-	saturation(&feedback.z,2.0);
+	feedback.x = 3*(feedback.x/m);
+	feedback.y = 3*(feedback.y/m);
+	feedback.z = 3*(feedback.z/m);
 
 	printf("feedback: %f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
-	printf("velocities: %f\t%f\t%f\t\n", omni.velocities.x,omni.velocities.y,omni.velocities.z);
+
+	saturation(&feedback.x,2.5);
+	saturation(&feedback.y,2.5);
+	saturation(&feedback.z,2.5);
+
+	//printf("velocities: %f\t%f\t%f\t\n", omni.velocities.x,omni.velocities.y,omni.velocities.z);
 }
 
 void Endohap::loop()
@@ -39,10 +46,12 @@ void Endohap::loop()
 	omni.state.position.resize(6);
 
 	omni.setFeedback(feedback);
-	pos[0] = omni.state.position[0];
-	pos[2] = 0*omni.pos.y;
-	pos[3] = 0*-omni.pos.z;
-	pos[1] = 0*omni.pos.z;
+	pos[1] = omni.state.position[0];
+	pos[2] = 3.93*omni.pos.z - 0.54;
+	pos[3] = -5.384*r + 0.7;
+	pos[0] = 5.384*r - 0.7;
+
+	std::cout << pos[3] << std::endl;
 	endowrist.setJoints(pos);
 }
 

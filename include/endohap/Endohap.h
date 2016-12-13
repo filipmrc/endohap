@@ -4,7 +4,7 @@
 class Endohap
 {
 public:
-	Endohap(ros::NodeHandle n, ros::Rate r);
+	Endohap(ros::NodeHandle n, ros::Rate rate);
 
 	void calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos);
 
@@ -14,6 +14,7 @@ private:
 	PhantomOmni omni;
 	Endowrist endowrist;
 	geometry_msgs::Vector3 feedback;
+	double r;
 	void saturation(double* force, double bound);
 	void deadzone(double* value, double bound);
 	int signum(double* d);

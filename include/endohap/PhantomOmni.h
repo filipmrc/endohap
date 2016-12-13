@@ -9,7 +9,6 @@ class PhantomOmni
 {
 public:
 	sensor_msgs::JointState state;
-
 	geometry_msgs::Vector3 pos;
 	geometry_msgs::Vector3 velocities;
 

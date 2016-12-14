@@ -5,8 +5,9 @@
 #include <sensor_msgs/JointState.h>
 #include <actionlib/client/simple_action_client.h>
 #include <endohap/Kalman.h>
+#include <endohap/utils.h>
 #include <Eigen/Dense>
-
+#define CONV_POS 1.953125
 using Eigen::MatrixXd;
 
 class Endowrist
@@ -39,6 +40,7 @@ private:
 		
 	double T;
 	MatrixXd A_p, B_p, C_p, x_p, y_p, Q_p, R_p;
+	MatrixXd A_yaw, B_yaw, C_yaw, x_yaw, y_yaw, Q_yaw, R_yaw;
 	Kalman f_yaw, f_pitch;
 
 };

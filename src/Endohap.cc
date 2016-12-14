@@ -17,16 +17,16 @@ void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vec
 	x_y = (pos.x)/r;
 	y_y = (pos.y)/r;
 
-	feedback.x = force.y*x_y;//force.x*x_r + force.y*x_y;
-	feedback.y = force.y*y_y;//force.x*y_r + force.y*y_y;
+	feedback.x = 3*force.y*x_y + 2*force.x*x_r ;
+	feedback.y = 3*force.y*y_y + 2*force.x*y_r;
 	feedback.z = 0*force.z ;
 
 	m = std::sqrt((feedback.x * feedback.x)  + (feedback.y * feedback.y) + (feedback.z * feedback.z));
 
 	//printf("feedback: %f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
 
-	saturation(&feedback.x,2);
-	saturation(&feedback.y,2);
+	saturation(&feedback.x,2.5);
+	saturation(&feedback.y,2.5);
 	saturation(&feedback.z,2.5);
 
 	//printf("velocities: %f\t%f\t%f\t\n", omni.velocities.x,omni.velocities.y,omni.velocities.z);

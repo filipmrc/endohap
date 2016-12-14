@@ -1,17 +1,21 @@
-void saturation(double* force, double bound)
+#ifndef UTILS_H
+#define UTILS_H
+
+static void saturation(double* force, double bound)
 {
 	if (*force > bound) *force = bound;
 	if (*force < -bound) *force = -bound;
 	if (*force != *force) *force = 0.0;
 }
-int signum(double* d)
+static int signum(double d)
 {
-	return (*d > 0) - (*d < 0);
+	return (d > 0) - (d < 0);
 }
-void deadzone(double* value, double bound)
+static double deadzone(double value, double bound)
 {
-	if (abs(*value) < bound)
-		*value = 0.0;
+	if (std::abs(value) < bound)
+		return 0.0;
 	else
-		*value = *value + (signum(value)*bound);
+		return value - (signum(value)*bound);
 }
+#endif

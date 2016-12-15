@@ -22,7 +22,7 @@ void Endowrist::initializeModels()
 //    MatrixXd A_yaw(6,6), B_yaw(6,1), C_yaw(2,6), x_yaw(6,1), y_yaw(2,1), Q_yaw(1,1), R_yaw(2,2);
 
 	// initialize pitch model
-	int order = 6; int inputs = 1; int outputs = 2;
+	int order = 6; int inputs = 2; int outputs = 2;
 	A_p.resize(order,order), B_p.resize(order,inputs), C_p.resize(outputs,order), x_p.resize(order,1), y_p.resize(outputs,1);
 
 
@@ -52,17 +52,18 @@ void Endowrist::initializeModels()
 	f_yaw.initializeFilter(A_yaw,B_yaw,C_yaw,Q_yaw,R_yaw,x_yaw);
 
 	// initialize pitch model
-	A_p <<  0.2553,   -0.6622,    3.2317,  256.5243,   49.3080,  371.6285,
-		    0.0485,    0.8377,   -0.2614,  -56.3401,   23.5937,  -93.4333,
-		   -0.0782,   -0.0529,    1.7583,   56.6637,   34.0408,  -62.2696,
-		    0.0010,    0.0011,   -0.0113,    0.2611,   -0.5256,    1.2069,
-		   -0.0000,   -0.0004,   -0.0018,   -0.1151,    0.9082,   -0.2223,
-		    0.0000,    0.0002,    0.0010,    0.0624,    0.0627,    0.6219;
+	A_p <<      0.7637,    0.0356,   -0.0420,   -0.1534,    0.0272,    0.2407,
+		    0.0953,    0.7448,    0.2917,    0.0741,   -0.0152,   -0.0925,
+		   -0.1225,   -0.4291,    0.8994,    0.0605,   -0.0123,   -0.0887,
+		    0.1058,   -0.1336,   -0.1422,    0.6082,    0.1456,   -0.1022,
+		    0.3838,   -0.5102,   -0.3870,   -0.9664,    1.3622,   -0.3878,
+		   -0.0897,    0.2165,    0.0710,   -0.2814,    0.0967,    1.1074;
 
-	B_p <<  1000000*9.1454,   - 1000000*2.2241,     1000000*0.3202,     1000000*0.0012,    1000000*0.0012,     1000000*0.0010;
+	B_p <<     -0.0670,   -0.0079,   -0.2515,   -0.0590,   -0.2374,    0.1875,
+			   -0.3649,    0.6677,    0.9655,    0.4645,    1.8338,   -0.8823;
 
-	C_p <<  0.0000,    0.0000,   -0.0000,   -0.0000,    0.0011,   -0.0019,
-		    0.0000,    0.0000,    0.0001,    0.0082,   -0.0013,   -0.0034;
+	C_p <<      0.7140,   -0.1976,    2.1258,   -0.1292,    0.0431,    0.0139,
+			   -0.5050,   -2.3200,    0.1649,  -25.8487,    8.2581,    2.2234;
 
 	x_p << 0, 0, 0, 0, 0, 0;
 }
@@ -109,15 +110,15 @@ void Endowrist::forceEstimation()
 	//	x 	pitch		3		eff[4]
 	//	y 	clamp		1 & 4		eff[1] & eff[3]
 	//	z 	roll		2		eff[0]
-	MatrixXd yv(2,1), u(1,1), ye1(2,1), ye2(2,1), ye3(2,1), ye4(2,1);
+	MatrixXd yv(2,1), u1(1,1), u2(2,1),ye1(2,1), ye2(2,1), ye3(2,1), ye4(2,1);
 
 	// yaw
 	yv << vel[1], 0;
-	u << -eff[1];
-	ye1 = f_yaw.estimateOutput(yv,u);
+	u1 << -eff[1];
+	ye1 = f_yaw.estimateOutput(yv,u1);
 	yv << vel[3], 0;
-	u << eff[3];
-	ye4 = f_yaw.estimateOutput(yv,u);
+	u1 << eff[3];
+	ye4 = f_yaw.estimateOutput(yv,u1);
 	if ((double(ye1(1)) > 0) && (double(ye4(1) > 0)))
 	{
 		force.y = deadzone(double (ye4(1) + ye1(1))/2,0.4);
@@ -132,7 +133,8 @@ void Endowrist::forceEstimation()
 
 
 	// pitch
-	x_p = A_p*x_p + B_p*eff[4];
+	u2 << eff[4], pos[4];
+	x_p = A_p*x_p + B_p*u2;
 	y_p = C_p*x_p;
 	force.z = y_p(1);
     std::cout << force.z << std::endl;

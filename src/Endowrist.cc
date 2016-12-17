@@ -91,24 +91,18 @@ void Endowrist::updateStates()
 	vel[2] = CONV_POS*state.velocity[3], vel[3] = CONV_POS*state.velocity[4];
 
 	// Efforts //TODO Possibly conversion from current to amps
-	eff[0] = state.effort[0], eff[1] = state.effort[1], eff[2] =
-			state.effort[3], eff[3] = state.effort[4];
+	eff[0] = state.effort[0], eff[1] = state.effort[1],
+    eff[2] = state.effort[3], eff[3] = state.effort[4];
 
-	// Endowrist motor angular velocities
-//	for (int i = 0; i < 4; i++)
-//	{
-//		vel[i] = (pos[i] - last_pos[i]) / T;
-//		if (!std::isfinite(vel[i])) vel[i] = 0.0;
-//		last_pos[i] = pos[i];
-//	}
+	//std::cout << pos[0] << " " << pos[1] << " " << pos[2] << " " << pos[3] << std::endl;
 }
 
 void Endowrist::forceEstimation()
 {
 	//	omni	joint		motor		joint_states
 	//
-	//	x 	pitch		3		eff[4]
-	//	y 	clamp		1 & 4		eff[1] & eff[3]
+	//	x 	pitch		3		eff[3]
+	//	y 	clamp		1 & 4		eff[1] & eff[2]
 	//	z 	roll		2		eff[0]
 	MatrixXd yv(2,1), u1(1,1), u2(2,1),ye1(2,1), ye2(2,1), ye3(2,1), ye4(2,1);
 
@@ -116,16 +110,16 @@ void Endowrist::forceEstimation()
 	yv << vel[1], 0;
 	u1 << -eff[1];
 	ye1 = f_yaw.estimateOutput(yv,u1);
-	yv << vel[3], 0;
-	u1 << eff[3];
+	yv << vel[2], 0;
+	u1 << eff[2];
 	ye4 = f_yaw.estimateOutput(yv,u1);
 	if ((double(ye1(1)) > 0) && (double(ye4(1) > 0)))
 	{
-		force.y = deadzone(double (ye4(1) + ye1(1))/2,0.4);
+		force.y = deadzone(double (ye4(1) + ye1(1))/2,0.1);
 	}
 	else if ((double(ye1(1)) < 0) && (double(ye4(1) < 0)))
 	{
-		force.y = deadzone(double (ye4(1) + ye1(1))/2,0.4);
+		force.y = deadzone(double (ye4(1) + ye1(1))/2,0.1);
 	}else
 		force.y = 0;
 
@@ -133,11 +127,11 @@ void Endowrist::forceEstimation()
 
 
 	// pitch
-	u2 << eff[4], pos[4];
+	u2 << eff[3], pos[3];
 	x_p = A_p*x_p + B_p*u2;
 	y_p = C_p*x_p;
 	force.z = y_p(1);
-    std::cout << force.z << std::endl;
+
 
 	// roll
 	double m = 1;
@@ -148,7 +142,7 @@ void Endowrist::forceEstimation()
 	else
 		force.x = -m*eff[0];
 
-	//printf("force.x = %f,\tforce.y = %f,\tforce.z = %f\n",force.x,force.y,force.z);
+	printf("force.x = %f,\tforce.y = %f,\tforce.z = %f\n",force.x,force.y,force.z);
 
 }
 

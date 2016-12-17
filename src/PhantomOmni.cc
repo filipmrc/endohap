@@ -23,8 +23,8 @@ void PhantomOmni::setFeedback(geometry_msgs::Vector3 fdbk)
 	geometry_msgs::Vector3 frc, blk_pos;
 
 	frc.x = -fdbk.x, blk_pos.x = 0;
-	frc.y = -fdbk.z, blk_pos.y = 0;
-	frc.z = fdbk.y, blk_pos.z = 0;
+	frc.y = fdbk.z, blk_pos.y = 0;
+	frc.z = -fdbk.y, blk_pos.z = 0;
 
 	feedback.force = frc;
 	feedback.position = blk_pos;

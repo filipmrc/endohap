@@ -15,5 +15,5 @@ private:
 	PhantomOmni omni;
 	Endowrist endowrist;
 	geometry_msgs::Vector3 feedback;
-	double r;
+	double r, theta;
 };

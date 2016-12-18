@@ -128,7 +128,7 @@ include_directories(
 # add_dependencies(endohap ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(endohap_node src/Endohap.cc src/Endowrist.cc src/PhantomOmni.cc src/Kalman.cc)
+add_executable(endohap_node src/Endohap.cc src/Endowrist.cc src/PhantomOmni.cc src/Kalman.cc src/deadzone_switch.cc)
 add_executable(endohap_test src/test.cc src/Kalman.cc)
 ## Add cmake target dependencies of the executable
 ## same as for the library above

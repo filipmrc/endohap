@@ -1,10 +1,14 @@
 #include <endohap/Endowrist.h>
 #include <endohap/PhantomOmni.h>
+#include <endohap/utils.h>
+
+#include <iostream>
+#include <fstream>
 
 class Endohap
 {
 public:
-	Endohap(ros::NodeHandle n, ros::Rate r);
+	Endohap(ros::NodeHandle n, ros::Rate rate);
 
 	void calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos);
 
@@ -14,7 +18,6 @@ private:
 	PhantomOmni omni;
 	Endowrist endowrist;
 	geometry_msgs::Vector3 feedback;
-	void saturation(double* force, double bound);
-	int signum(double* d);
-	void deadzone(double* value, double bound);
+	double r, theta;
+	std::ofstream _received_packets;
 };

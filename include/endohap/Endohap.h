@@ -2,6 +2,9 @@
 #include <endohap/PhantomOmni.h>
 #include <endohap/utils.h>
 
+#include <iostream>
+#include <fstream>
+
 class Endohap
 {
 public:
@@ -16,4 +19,5 @@ private:
 	Endowrist endowrist;
 	geometry_msgs::Vector3 feedback;
 	double r, theta;
+	std::ofstream _data_log;
 };

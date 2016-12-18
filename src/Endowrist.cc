@@ -1,7 +1,9 @@
 #include <endohap/Endowrist.h>
 
 Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
-		acTraj("davinci/p4_hand_controller/follow_joint_trajectory", true)
+		acTraj("davinci/p4_hand_controller/follow_joint_trajectory", true),
+		roll_dz(&eff[0], &force.x, 0.14),
+		clamp_dz(&eff[2], &force.y, 0.20)
 {
 	joint_sub = n.subscribe("/joint_states", 1, &Endowrist::callback, this);
 	T = 0.02;
@@ -13,6 +15,7 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 	force.x = 0; force.y = 0; force.z = 0;
 
 	initializeModels();
+
 }
 
 void Endowrist::initializeModels()
@@ -134,14 +137,20 @@ void Endowrist::forceEstimation()
 
 
 	// roll
-	double m = 1;
-	if (vel[0] > 0)
+	double m = 3;
+	force.x = -m*eff[0];
+
+	/*if (vel[0] > 0)
 	{
 		force.x = m*eff[0];
 	}
 	else
-		force.x = -m*eff[0];
+		force.x = -m*eff[0];*/
+	
 
+	//apply the friction model
+	//force.y = clamp_dz.run();
+	//force.x = roll_dz.run();
 	printf("force.x = %f,\tforce.y = %f,\tforce.z = %f\n",force.x,force.y,force.z);
 
 }

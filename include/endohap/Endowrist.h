@@ -7,6 +7,7 @@
 #include <endohap/Kalman.h>
 #include <endohap/utils.h>
 #include <Eigen/Dense>
+#include <endohap/deadzone_switch.h>
 #define CONV_POS 1.953125
 using Eigen::MatrixXd;
 
@@ -42,5 +43,8 @@ private:
 	MatrixXd A_p, B_p, C_p, x_p, y_p, Q_p, R_p;
 	MatrixXd A_yaw, B_yaw, C_yaw, x_yaw, y_yaw, Q_yaw, R_yaw;
 	Kalman f_yaw, f_pitch;
+
+	Deadzone_switch roll_dz;
+	Deadzone_switch clamp_dz;
 
 };

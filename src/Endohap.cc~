@@ -1,32 +1,33 @@
 #include <endohap/Endohap.h>
 
-Endohap::Endohap(ros::NodeHandle n, ros::Rate r) :
-		omni(n), endowrist(n, r)
+Endohap::Endohap(ros::NodeHandle n, ros::Rate rate) :
+		omni(n), endowrist(n, rate)
 {
-	feedback.x = 0, feedback.y = 0, feedback.z = 0;
+	feedback.x = 0, feedback.y = 0, feedback.z = 0; r = 0; theta= 0;
+	_data_log.open("/home/uurcz/log_force_clamp.csv");
+	_data_log << "Time,setpoint0,setpoint1,position1,velocity1,effort1,position2,velocity2,effort2,feedbackY\n";
 }
 
 void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos)
 {
-	double x_p, z_p;
+	double x_r, y_r, x_y, y_y, m;
+	//polar coordinates
+	r = std::sqrt((pos.y * pos.y)  + (pos.x * pos.x));
+	theta = 2*atan(pos.y /(pos.x + r));
 
+	//convert from polar to cartesian
+	feedback.x = force.x*sin(theta) + force.y*cos(theta);
+	feedback.y = force.x*cos(theta) - force.y*sin(theta);
+	feedback.z = 0*force.z;
 
+	
 
-	z_p = std::sqrt(1 / ((pos.z * pos.z) / (pos.x * pos.x) + 1));
-	x_p = -(pos.z / pos.x) * z_p;
-
-	feedback.x = force.x*x_p;
-	feedback.y = force.y;
-	feedback.z = force.x*z_p + force.z;
-
-
-
-	saturation(&feedback.x,2.0);
-	saturation(&feedback.y,2.0);
-	saturation(&feedback.z,2.0);
+	saturation(&feedback.x,2.5);
+	saturation(&feedback.y,2.5);
+	saturation(&feedback.z,2.5);
 
 	printf("feedback: %f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
-	printf("velocities: %f\t%f\t%f\t\n", omni.velocities.x,omni.velocities.y,omni.velocities.z);
+	//printf("velocities: %f\t%f\t%f\t\n", omni.velocities.x,omni.velocities.y,omni.velocities.z);
 }
 
 void Endohap::loop()
@@ -39,18 +40,25 @@ void Endohap::loop()
 	omni.state.position.resize(6);
 
 	omni.setFeedback(feedback);
-	pos[2] = omni.state.position[0];
-	pos[0] = omni.pos.z;
-	pos[3] = -omni.pos.y;
-	pos[1] = omni.pos.y;
+	pos[1] = 0.7096*theta-1.108;
+	pos[2] = 3.93*omni.pos.z - 0.54;
+	pos[3] = -5.384*r + 0.7;
+	pos[0] = 5.384*r - 0.7;
+
+	//std::cout << pos[0] << " " << pos[1] << std::endl;
 	endowrist.setJoints(pos);
+
+	struct timespec spec;
+	clock_gettime(CLOCK_REALTIME, &spec);
+	_data_log << spec.tv_sec <<"."<< spec.tv_nsec <<  "," << pos[0] << "," << pos[3] << "," << endowrist.pos[1] << "," << endowrist.vel[1]<< "," << endowrist.eff[1] << "," << endowrist.pos[2] << "," << endowrist.vel[2]<< "," << endowrist.eff[2] << "," << feedback.y <<"\n";
 }
 
 int main(int argc, char** argv)
 {
+
 	ros::init(argc, argv, "omni_haptic_node");
 	ros::NodeHandle n;
-	ros::Rate r(10000);
+	ros::Rate r(2000);
 
 	Endohap endohap(n, r);
 
@@ -63,23 +71,5 @@ int main(int argc, char** argv)
 
 }
 
-void Endohap::saturation(double* force, double bound)
-{
-	if (*force > bound) *force = bound;
-	if (*force < -bound) *force = -bound;
-	if (*force != *force) *force = 0.0;
-}
 
-void Endohap::deadzone(double* value, double bound)
-{
-	if (abs(*value) < bound)
-		*value = 0.0;
-	else
-		*value = *value + (signum(value)*bound); 
-}
-
-int Endohap::signum(double* d)
-{
-	return (*d > 0) - (*d < 0);
-}
 

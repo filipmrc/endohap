@@ -5,8 +5,10 @@
 #include <sensor_msgs/JointState.h>
 #include <actionlib/client/simple_action_client.h>
 #include <endohap/Kalman.h>
+#include <endohap/utils.h>
 #include <Eigen/Dense>
-
+#include <endohap/deadzone_switch.h>
+#define CONV_POS 1.953125
 using Eigen::MatrixXd;
 
 class Endowrist
@@ -16,6 +18,8 @@ public:
 	std::vector<double> pos, last_pos, vel, eff;
 
 	Endowrist(ros::NodeHandle n, ros::Rate r);
+
+	void initializeModels();
 
 	// Fresh data callback function
 	void callback(sensor_msgs::JointState st);
@@ -36,8 +40,11 @@ private:
 	sensor_msgs::JointState state;
 		
 	double T;
-	MatrixXd A_y, B_y, C_y, A_p, B_p, C_p,
-	x_y, x_p, y_y, y_p, Q_y, Q_p, R_y, R_p;
-	Kalman f1;
+	MatrixXd A_p, B_p, C_p, x_p, y_p, Q_p, R_p;
+	MatrixXd A_yaw, B_yaw, C_yaw, x_yaw, y_yaw, Q_yaw, R_yaw;
+	Kalman f_yaw, f_pitch;
+
+	/*Deadzone_switch roll_dz;
+	Deadzone_switch clamp_dz;*/
 
 };

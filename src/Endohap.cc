@@ -4,25 +4,29 @@ Endohap::Endohap(ros::NodeHandle n, ros::Rate rate) :
 		omni(n), endowrist(n, rate)
 {
 	feedback.x = 0, feedback.y = 0, feedback.z = 0; r = 0; theta= 0;
+	_data_log.open("/home/uurcz/log_force_clamp.csv");
+	_data_log << "Time,setpoint0,setpoint1,position1,velocity1,effort1,position2,velocity2,effort2,feedbackY\n";
 }
 
 void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos)
 {
 	double x_r, y_r, x_y, y_y, m;
-
+	//polar coordinates
 	r = std::sqrt((pos.y * pos.y)  + (pos.x * pos.x));
-    theta = 2*atan(pos.y /(pos.x + r));
+	theta = 2*atan(pos.y /(pos.x + r));
 
-	feedback.x = force.x*sin(theta) + 2*force.y*cos(theta);
-    feedback.y = force.x*cos(theta) - 2*force.y*sin(theta);
-    feedback.z = 0*force.z;
+	//convert from polar to cartesian
+	feedback.x = force.x*sin(theta) + force.y*cos(theta);
+	feedback.y = force.x*cos(theta) - force.y*sin(theta);
+	feedback.z = 0*force.z;
 
-	//printf("feedback: %f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
+	
 
 	saturation(&feedback.x,2.5);
 	saturation(&feedback.y,2.5);
 	saturation(&feedback.z,2.5);
 
+	printf("feedback: %f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
 	//printf("velocities: %f\t%f\t%f\t\n", omni.velocities.x,omni.velocities.y,omni.velocities.z);
 }
 
@@ -41,15 +45,20 @@ void Endohap::loop()
 	pos[3] = -5.384*r + 0.7;
 	pos[0] = 5.384*r - 0.7;
 
-	std::cout << pos[0] << " " << pos[1] << std::endl;
+	//std::cout << pos[0] << " " << pos[1] << std::endl;
 	endowrist.setJoints(pos);
+
+	struct timespec spec;
+	clock_gettime(CLOCK_REALTIME, &spec);
+	_data_log << spec.tv_sec <<"."<< spec.tv_nsec <<  "," << pos[0] << "," << pos[3] << "," << endowrist.pos[1] << "," << endowrist.vel[1]<< "," << endowrist.eff[1] << "," << endowrist.pos[2] << "," << endowrist.vel[2]<< "," << endowrist.eff[2] << "," << feedback.y <<"\n";
 }
 
 int main(int argc, char** argv)
 {
+
 	ros::init(argc, argv, "omni_haptic_node");
 	ros::NodeHandle n;
-	ros::Rate r(10000);
+	ros::Rate r(2000);
 
 	Endohap endohap(n, r);
 

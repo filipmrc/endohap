@@ -1,8 +1,6 @@
 #include <endohap/deadzone_switch.h>
 
-/*class Deadzone_switch 
-{
-public:*/
+
 Deadzone_switch::Deadzone_switch(double* effort, double* model, double coefficient) :
 	_coefficient(coefficient),
 	_effort(effort),
@@ -27,11 +25,4 @@ double Deadzone_switch::run()
 	}
 	return output;
 }
-/*
-private:
-	double _coefficient;
-	double* _effort;
-	double* _model_output;
-	bool _there_is_external_forces;
-};*/
 

@@ -4,8 +4,8 @@ Endohap::Endohap(ros::NodeHandle n, ros::Rate rate) :
 		omni(n), endowrist(n, rate)
 {
 	feedback.x = 0, feedback.y = 0, feedback.z = 0; r = 0; theta= 0;
-	_data_log.open("/home/uurcz/log_force_clamp.csv");
-	_data_log << "Time,setpoint0,setpoint1,position1,velocity1,effort1,position2,velocity2,effort2,feedbackY\n";
+	_data_log.open("/home/uurcz/log_force_roll.csv");
+	_data_log << "Time,setpoint,position,velocity,effort,force.x\n";
 }
 
 void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos)
@@ -13,8 +13,7 @@ void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vec
 	double x_r, y_r, x_y, y_y, m;
 	//polar coordinates
 	r = std::sqrt((pos.y * pos.y)  + (pos.x * pos.x));
-	theta = 2*atan(pos.y /(pos.x + r));
-
+	theta = atan2(pos.y, pos.x);
 	//convert from polar to cartesian
 	feedback.x = force.x*sin(theta) + force.y*cos(theta);
 	feedback.y = force.x*cos(theta) - force.y*sin(theta);
@@ -26,8 +25,6 @@ void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vec
 	saturation(&feedback.y,2.5);
 	saturation(&feedback.z,2.5);
 
-	printf("feedback: %f\t%f\t%f\t\n", feedback.x,feedback.y,feedback.z);
-	//printf("velocities: %f\t%f\t%f\t\n", omni.velocities.x,omni.velocities.y,omni.velocities.z);
 }
 
 void Endohap::loop()
@@ -45,12 +42,10 @@ void Endohap::loop()
 	pos[3] = -5.384*r + 0.7;
 	pos[0] = 5.384*r - 0.7;
 
-	//std::cout << pos[0] << " " << pos[1] << std::endl;
+
 	endowrist.setJoints(pos);
 
-	struct timespec spec;
-	clock_gettime(CLOCK_REALTIME, &spec);
-	_data_log << spec.tv_sec <<"."<< spec.tv_nsec <<  "," << pos[0] << "," << pos[3] << "," << endowrist.pos[1] << "," << endowrist.vel[1]<< "," << endowrist.eff[1] << "," << endowrist.pos[2] << "," << endowrist.vel[2]<< "," << endowrist.eff[2] << "," << feedback.y <<"\n";
+
 }
 
 int main(int argc, char** argv)

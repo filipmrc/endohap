@@ -11,7 +11,7 @@ Deadzone_switch::Deadzone_switch(double* effort, double* model, double coefficie
 	_there_is_external_forces = false;
 };
 
-~Deadzone_switch::Deadzone_switch(){};
+
 
 double Deadzone_switch::run()
 {

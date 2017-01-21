@@ -5,14 +5,21 @@ Endowrist::Endowrist(ros::NodeHandle n, ros::Rate r) :
 		roll_dz(&eff[0], &force.x, 0.14),
 		clamp_dz(&eff[2], &force.y, 0.20)
 {
-	joint_sub = n.subscribe("/joint_states", 1, &Endowrist::callback, this);
-	T = 0.02;
+	joint_sub = n.subscribe("/joint_states", 1, &Endowrist::callback, this); // subscriber to Endowrist states
+	T = 0.02; // sample time
 
+	// initialize position, velocity, effort and force variables
 	pos.resize(4);
 	last_pos.resize(4);
 	eff.resize(4);
 	vel.resize(4);
+	delta.resize(4);
+	setpoint.resize(5);
 	force.x = 0; force.y = 0; force.z = 0;
+
+	// initialize ros time
+	current = ros::Time::now();
+	last = ros::Time(0.001);
 
 	initializeModels();
 
@@ -79,18 +86,31 @@ void Endowrist::callback(sensor_msgs::JointState st)
 
 void Endowrist::updateStates()
 {
-	// Physical motor angles Endowrist used in the dynamic model
-
-
+	// Positions
 	pos[0] = CONV_POS*state.position[0], pos[1] = CONV_POS*state.position[1],
     pos[2] = CONV_POS*state.position[3] , pos[3] = CONV_POS*state.position[4];
 
-	vel[0] = CONV_POS*state.velocity[0], vel[1] = CONV_POS*state.velocity[1],
-	vel[2] = CONV_POS*state.velocity[3], vel[3] = CONV_POS*state.velocity[4];
+	//vel[0] = CONV_POS*state.velocity[0], vel[1] = CONV_POS*state.velocity[1],
+	//vel[2] = CONV_POS*state.velocity[3], vel[3] = CONV_POS*state.velocity[4];
+
+	// Velocities
+	current = ros::Time::now();
+	double dT = current.toSec() - last.toSec();
+	vel[0] = (state.position[0] - last_pos[0])/dT;
+	vel[1] = (state.position[1] - last_pos[1])/dT;
+	vel[2] = (state.position[2] - last_pos[2])/dT;
+	vel[3] = (state.position[3] - last_pos[3])/dT;
+	last = current;
 
 	// Efforts 
 	eff[0] = state.effort[0], eff[1] = state.effort[1],
     eff[2] = state.effort[3], eff[3] = state.effort[4];
+
+	// Difference between setpoint and current position
+	delta[0] = setpoint[0] - pos[0];
+	delta[1] = setpoint[1] - pos[1];
+	delta[2] = setpoint[2] - pos[2];
+	delta[3] = setpoint[3] - pos[3];
 
 	//std::cout << pos[0] << " " << pos[1] << " " << pos[2] << " " << pos[3] << std::endl;
 }
@@ -145,6 +165,7 @@ void Endowrist::forceEstimation()
 void Endowrist::setJoints(std::vector<double> cmd)
 {
 	cmd.resize(5);
+	setpoint = cmd;
 
 	control_msgs::FollowJointTrajectoryGoal goal;
 	goal.trajectory.points.resize(1);
@@ -167,7 +188,7 @@ void Endowrist::setJoints(std::vector<double> cmd)
 
 	if (finished_before_timeout)
 	{
-		//actionlib::SimpleClientGoalState state = acTraj.getState();
+		actionlib::SimpleClientGoalState state = acTraj.getState();
 		//ROS_INFO("Action finished: %s", state.toString().c_str());
 	}
 	else

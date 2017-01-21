@@ -10,21 +10,19 @@ Endohap::Endohap(ros::NodeHandle n, ros::Rate rate) :
 
 void Endohap::calculateFeedback(geometry_msgs::Vector3 force, geometry_msgs::Vector3 pos)
 {
-	double x_r, y_r, x_y, y_y, m;
-	//polar coordinates
+	// polar coordinates of Geomagic
 	r = std::sqrt((pos.y * pos.y)  + (pos.x * pos.x));
 	theta = atan2(pos.y, pos.x);
-	//convert from polar to cartesian
+
+	// convert forces to feedback on polar and then to cartesian for API
 	feedback.x = force.x*sin(theta) + force.y*cos(theta);
 	feedback.y = force.x*cos(theta) - force.y*sin(theta);
 	feedback.z = 0*force.z;
 
-	
-
+	// limit feedback force
 	saturation(&feedback.x,2.5);
 	saturation(&feedback.y,2.5);
 	saturation(&feedback.z,2.5);
-
 }
 
 void Endohap::loop()
@@ -42,10 +40,7 @@ void Endohap::loop()
 	pos[3] = -5.384*r + 0.7;
 	pos[0] = 5.384*r - 0.7;
 
-
 	endowrist.setJoints(pos);
-
-
 }
 
 int main(int argc, char** argv)

@@ -15,7 +15,7 @@ class Endowrist
 {
 public:
 	geometry_msgs::Vector3 force;
-	std::vector<double> pos, last_pos, vel, eff;
+	std::vector<double> pos, last_pos, vel, eff, setpoint, delta;
 
 	Endowrist(ros::NodeHandle n, ros::Rate r);
 
@@ -46,5 +46,7 @@ private:
 
 	Deadzone_switch roll_dz;
 	Deadzone_switch clamp_dz;
+
+	ros::Time last, current;
 
 };
